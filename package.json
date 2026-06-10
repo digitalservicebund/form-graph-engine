@@ -1,0 +1,48 @@
+{
+  "name": "form-graph-engine",
+  "version": "0.0.0",
+  "description": "TypeScript library for compiling and running form flow graphs",
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --experimental-test-coverage --test test/**/*.test.ts",
+    "test:watch": "node --test --watch test/**/*.test.ts",
+    "typecheck": "tsc",
+    "typecheck:watch": "tsc --watch",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "build": "tsc -p tsconfig.build.json",
+    "check:browser": "pnpm run build && node scripts/check-browser.mjs"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "form",
+    "multi-page",
+    "zod"
+  ],
+  "author": "chohner",
+  "license": "MIT",
+  "packageManager": "pnpm@11.5.2",
+  "engines": {
+    "node": ">=18",
+    "pnpm": "^11"
+  },
+  "dependencies": {
+    "zod": "4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "oxfmt": "^0.54.0",
+    "oxlint": "^1.69.0",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"normalizeSchema.d.ts","sourceRoot":"","sources":["../src/normalizeSchema.ts"],"names":[],"mappings":"AAAA,OAAO,CAAC,MAAM,KAAK,CAAC;AAEpB,MAAM,MAAM,cAAc,GAAG;IAC3B,cAAc,EAAE,CAAC,CAAC,UAAU,CAAC;IAC7B,UAAU,EAAE,MAAM,EAAE,CAAC;CACtB,CAAC;AAEF,eAAO,MAAM,eAAe,GAC1B,SAAS,CAAC,CAAC,UAAU,GAAG,CAAC,CAAC,WAAW,KACpC,cAsBF,CAAC"}

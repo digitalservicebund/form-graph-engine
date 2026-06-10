@@ -1,14 +1,53 @@
-# Template for open source projects
+# form-graph-engine
 
-You can use this template when open sourcing your project! < replace this line with a concise summary of your project.
+TypeScript library for compiling and running form flow graphs.
 
-## Getting started
+## Install
 
-Explain how to start the project after first checkout. Don't assume deep familiarity with the patterns of your eco-system!
+```bash
+pnpm add form-graph-engine
+```
 
 ## Usage
 
-List the main entry-points of this project. This may include running a dev server, building, running tests or similar.
+```ts
+import { compileFlowConfig, createFlowSession } from "form-graph-engine";
+
+// Compile your flow config once
+const compiled = compileFlowConfig({
+  // your flow definition
+});
+
+// Create a session to evaluate the current step
+const session = createFlowSession(compiled, userData, currentPath);
+
+// Session provides:
+// - nodeKey: current step identifier
+// - pageSchema: Zod schema for validating form data
+// - fieldNames: names of fields in this step
+// - nextPath: path to navigate forward
+// - prevPath: path to navigate backward
+// - isReachable(path): check if a path is reachable given current data
+// - statusTree: overall flow completion status
+// - prunedUserData: user data with irrelevant branches removed
+```
+
+## Development
+
+```bash
+pnpm install
+pnpm run typecheck
+pnpm run lint
+pnpm run test
+pnpm run build
+```
+
+## Node and Package Manager
+
+- Development Node: 22.x (for direct TypeScript execution in local workflows)
+- Runtime support for consumers: Node 18+
+- Build target: ES2020 output in dist
+- pnpm: see packageManager in package.json
 
 ## Contributing
 
