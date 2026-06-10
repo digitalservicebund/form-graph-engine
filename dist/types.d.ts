@@ -1,7 +1,5 @@
 import { type z } from "zod";
-type PageData = {
-    arrayIndices: number[];
-};
+import type { PageData } from "./pageDataSchema.ts";
 type InferSchema<S> = S extends z.ZodTypeAny ? z.infer<S> : S extends z.ZodRawShape ? z.infer<z.ZodObject<S>> : never;
 type PageConfig = {
     path: string;
@@ -36,4 +34,3 @@ export type TransitionConfigMap<C extends PageConfigMap> = Record<NodeKey<C>, Tr
     pageData: PageData;
 }>>;
 export {};
-//# sourceMappingURL=types.d.ts.map
