@@ -46,5 +46,6 @@ export declare const createFlowSession: <C extends PageConfigMap>(compiledFlow: 
     isReachable: (targetPath: string) => boolean;
     nextPath: string | undefined;
     prevPath: string | undefined;
+    advanceWithNewData: (newUserData: InferredUserData<C>) => string | undefined;
 };
 export type FlowSession<C extends PageConfigMap> = ReturnType<typeof createFlowSession<C>>;

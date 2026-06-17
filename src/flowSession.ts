@@ -41,11 +41,11 @@ export const createFlowSession = <C extends PageConfigMap>(
   const prevNodeKey = simulation.parentMap.get(nodeKey);
 
   // Next: evaluateRoute skips addArrayItem transitions to find the next main-branch step.
-  const nextNodeKey =
-    evaluateRoute(compiledFlow.transitions[nodeKey], {
-      ...userData,
-      pageData: currentPageData,
-    }) ?? undefined;
+  const currentTransition = compiledFlow.transitions[nodeKey];
+  const nextNodeKey = evaluateRoute(currentTransition, {
+    ...userData,
+    pageData: currentPageData,
+  });
 
   const prunedUserData = pruneUserData(
     compiledFlow,
@@ -75,8 +75,16 @@ export const createFlowSession = <C extends PageConfigMap>(
       const key = compiledFlow.getNodeKeyFromPath(targetPath);
       return key != null && simulation.reachableSet.has(key);
     },
-    nextPath: compiledFlow.getPathFromNodeKey(nextNodeKey),
+    nextPath: compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined),
     prevPath: compiledFlow.getPathFromNodeKey(prevNodeKey),
+    advanceWithNewData: (newUserData: InferredUserData<C>) => {
+      const mergedUserData = { ...userData, ...newUserData };
+      const nextNodeKey = evaluateRoute(currentTransition, {
+        ...mergedUserData,
+        pageData: currentPageData,
+      });
+      return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
+    },
   };
 };
 

@@ -20,10 +20,11 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
     // Prev: The BFS parent guarantees a direct, chronological Back step.
     const prevNodeKey = simulation.parentMap.get(nodeKey);
     // Next: evaluateRoute skips addArrayItem transitions to find the next main-branch step.
-    const nextNodeKey = evaluateRoute(compiledFlow.transitions[nodeKey], {
+    const currentTransition = compiledFlow.transitions[nodeKey];
+    const nextNodeKey = evaluateRoute(currentTransition, {
         ...userData,
         pageData: currentPageData,
-    }) ?? undefined;
+    });
     const prunedUserData = pruneUserData(compiledFlow, simulation.visitedContexts, userData);
     const fieldNames = compiledFlow.getFieldNames(normalizedPath);
     const pageData = Object.fromEntries(Object.entries(prunedUserData).filter(([key, _]) => fieldNames.includes(key)));
@@ -42,7 +43,15 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
             const key = compiledFlow.getNodeKeyFromPath(targetPath);
             return key != null && simulation.reachableSet.has(key);
         },
-        nextPath: compiledFlow.getPathFromNodeKey(nextNodeKey),
+        nextPath: compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined),
         prevPath: compiledFlow.getPathFromNodeKey(prevNodeKey),
+        advanceWithNewData: (newUserData) => {
+            const mergedUserData = { ...userData, ...newUserData };
+            const nextNodeKey = evaluateRoute(currentTransition, {
+                ...mergedUserData,
+                pageData: currentPageData,
+            });
+            return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
+        },
     };
 };
