@@ -47,20 +47,30 @@ export const createFlowSession = <C extends PageConfigMap>(
       pageData: currentPageData,
     }) ?? undefined;
 
+  const prunedUserData = pruneUserData(
+    compiledFlow,
+    simulation.visitedContexts,
+    userData,
+  );
+  const fieldNames = compiledFlow.getFieldNames(normalizedPath);
+
+  const pageData = Object.fromEntries(
+    Object.entries(prunedUserData).filter(([key, _]) =>
+      fieldNames.includes(key),
+    ),
+  ) as Partial<InferredUserData<C>>;
+
   return {
     nodeKey,
     pageSchema: compiledFlow.getSchema(normalizedPath),
-    fieldNames: compiledFlow.getFieldNames(normalizedPath),
+    pageData,
+    fieldNames,
     initialPath: compiledFlow.initialPath,
     arrayInfo: compiledFlow.getArrayInfo(normalizedPath),
     path: simulation.path,
     isComplete: simulation.isComplete,
     statusTree: buildStatusTree(compiledFlow.pages, simulation),
-    prunedUserData: pruneUserData(
-      compiledFlow,
-      simulation.visitedContexts,
-      userData,
-    ),
+    prunedUserData,
     isReachable: (targetPath: string): boolean => {
       const key = compiledFlow.getNodeKeyFromPath(targetPath);
       return key != null && simulation.reachableSet.has(key);
