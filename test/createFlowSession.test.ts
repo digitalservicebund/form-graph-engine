@@ -90,7 +90,7 @@ describe("createFlowSession", () => {
 
       const session = createFlowSession(arrayFlow, noData, "/items/2/daten");
       deepStrictEqual(session.nodeKey, "item");
-      deepStrictEqual(session.nextPath, "/done");
+      deepStrictEqual(session.nextPath(), "/done");
     });
   });
 
@@ -153,12 +153,12 @@ describe("createFlowSession", () => {
   describe("nextPath", () => {
     it("returns the next step path", () => {
       const session = createFlowSession(flow, noData, "/start");
-      deepStrictEqual(session.nextPath, "/middle");
+      deepStrictEqual(session.nextPath(), "/middle");
     });
 
     it("returns undefined at the terminal step", () => {
       const session = createFlowSession(flow, noData, "/end");
-      deepStrictEqual(session.nextPath, undefined);
+      deepStrictEqual(session.nextPath(), undefined);
     });
 
     it("skips addArrayItem transitions to return the next main-branch step", () => {
@@ -184,7 +184,7 @@ describe("createFlowSession", () => {
         transitions: arrayTransitions,
       });
       const session = createFlowSession(arrayFlow, noData, "/list");
-      deepStrictEqual(session.nextPath, "/done");
+      deepStrictEqual(session.nextPath(), "/done");
     });
 
     it("chooses the first guard branch that matches current data", () => {
@@ -213,7 +213,7 @@ describe("createFlowSession", () => {
         { answer: "no" },
         "/start",
       );
-      deepStrictEqual(session.nextPath, "/no");
+      deepStrictEqual(session.nextPath(), "/no");
     });
   });
 
@@ -441,7 +441,7 @@ describe("createFlowSession", () => {
       );
 
       ok(!session.isReachable("/items/#/daten"));
-      deepStrictEqual(session.nextPath, "/done");
+      deepStrictEqual(session.nextPath(), "/done");
       deepStrictEqual(session.prunedUserData, {});
     });
 
