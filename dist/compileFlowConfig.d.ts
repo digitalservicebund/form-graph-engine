@@ -13,7 +13,7 @@ export declare const compileFlowConfig: <C extends PageConfigMap>({ pages, initi
     initialStep: NodeKey<C>;
     initialPath: string;
     getArrayInfo: (path: string) => Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
-    getSchema: (path: string) => import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>> | undefined;
+    getSchema: (path: string) => import("./types.ts").ZodSchemaLike | undefined;
     getFieldNames: (path: string) => string[];
     getFieldNamesByNodeKey: (nodeKey: NodeKey<C>) => string[];
     arrayInfoCache: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>;

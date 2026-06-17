@@ -1,12 +1,25 @@
-import { type z } from "zod";
 import type { PageData } from "./pageDataSchema.ts";
-type InferSchema<S> = S extends z.ZodTypeAny ? z.infer<S> : S extends z.ZodRawShape ? z.infer<z.ZodObject<S>> : never;
+export type ZodSchemaLike<Output = unknown, Input = unknown> = {
+    parse: (value: Input) => Output;
+    safeParse: (value: Input) => {
+        success: true;
+        data: Output;
+    } | {
+        success: false;
+        error: unknown;
+    };
+};
+export type ZodRawShapeLike = Readonly<Record<string, ZodSchemaLike>>;
+type InferSchema<S> = S extends ZodSchemaLike<infer Output, unknown> ? Output : S extends ZodRawShapeLike ? {
+    [K in keyof S]: InferSchema<S[K]>;
+} : never;
+export type PageSchema = ZodSchemaLike | ZodRawShapeLike;
 type PageConfig = {
     path: string;
-    pageSchema?: z.ZodTypeAny | z.ZodRawShape;
+    pageSchema?: PageSchema;
     arraySummary?: {
         name: string;
-        schema: z.ZodArray;
+        schema: ZodSchemaLike;
     };
 };
 export type PageConfigMap = Record<string, PageConfig>;
