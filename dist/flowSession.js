@@ -47,5 +47,6 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
             });
             return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
         },
+        progress: compiledFlow.progressByKey(nodeKey),
     };
 };

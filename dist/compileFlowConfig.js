@@ -63,5 +63,6 @@ export const compileFlowConfig = ({ pages, initialStep, transitions, }) => {
             const nodeKey = getNodeKeyFromPath(path);
             return nodeKey != null ? graphStats.getProgress(nodeKey) : undefined;
         },
+        progressByKey: (nodeKey) => graphStats.getProgress(nodeKey),
     };
 };

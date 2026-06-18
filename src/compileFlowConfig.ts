@@ -80,6 +80,7 @@ export const compileFlowConfig = <C extends PageConfigMap>({
       const nodeKey = getNodeKeyFromPath(path);
       return nodeKey != null ? graphStats.getProgress(nodeKey) : undefined;
     },
+    progressByKey: (nodeKey: NodeKey<C>) => graphStats.getProgress(nodeKey),
   };
 };
 

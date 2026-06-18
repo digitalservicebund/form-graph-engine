@@ -24,5 +24,9 @@ export declare const compileFlowConfig: <C extends PageConfigMap>({ pages, initi
         max: number;
         progress: number;
     } | undefined;
+    progressByKey: (nodeKey: NodeKey<C>) => {
+        max: number;
+        progress: number;
+    };
 };
 export type CompiledFlow<C extends PageConfigMap> = ReturnType<typeof compileFlowConfig<C>>;

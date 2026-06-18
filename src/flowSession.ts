@@ -77,6 +77,7 @@ export const createFlowSession = <C extends PageConfigMap>(
       });
       return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
     },
+    progress: compiledFlow.progressByKey(nodeKey),
   };
 };
 
