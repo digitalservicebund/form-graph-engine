@@ -1,5 +1,5 @@
 import { simulate } from "./simulate.js";
-import { evaluateRoute } from "./routing.js";
+import { evaluateRoute, findNextIncompleteNode } from "./routing.js";
 import { buildStatusTree } from "./statusTree.js";
 import { pruneUserData } from "./pruneUserData.js";
 import { parseCurrentPath } from "./arrays.js";
@@ -45,6 +45,14 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
                 ...mergedUserData,
                 pageData: currentPageData,
             });
+            return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
+        },
+        nextIncomplete: (newUserData) => {
+            const guardData = {
+                ...{ ...userData, ...newUserData },
+                pageData: currentPageData,
+            };
+            const nextNodeKey = findNextIncompleteNode(compiledFlow, guardData, nodeKey);
             return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
         },
         progress: compiledFlow.progressByKey(nodeKey),

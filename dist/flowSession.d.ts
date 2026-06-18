@@ -46,6 +46,7 @@ export declare const createFlowSession: <C extends PageConfigMap>(compiledFlow: 
     isReachable: (targetPath: string) => boolean;
     prevPath: string | undefined;
     nextPath: (newUserData?: InferredUserData<C>) => string | undefined;
+    nextIncomplete: (newUserData?: InferredUserData<C>) => string | undefined;
     progress: {
         max: number;
         progress: number;

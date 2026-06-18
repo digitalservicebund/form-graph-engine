@@ -1,7 +1,7 @@
 import { simulate } from "./simulate.ts";
 import type { CompiledFlow } from "./compileFlowConfig.ts";
 import type { PageConfigMap, InferredUserData } from "./types.ts";
-import { evaluateRoute } from "./routing.ts";
+import { evaluateRoute, findNextIncompleteNode } from "./routing.ts";
 import { buildStatusTree } from "./statusTree.ts";
 import { pruneUserData } from "./pruneUserData.ts";
 import { parseCurrentPath } from "./arrays.ts";
@@ -75,6 +75,18 @@ export const createFlowSession = <C extends PageConfigMap>(
         ...mergedUserData,
         pageData: currentPageData,
       });
+      return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
+    },
+    nextIncomplete: (newUserData?: InferredUserData<C>) => {
+      const guardData = {
+        ...{ ...userData, ...newUserData },
+        pageData: currentPageData,
+      };
+      const nextNodeKey = findNextIncompleteNode(
+        compiledFlow,
+        guardData,
+        nodeKey,
+      );
       return compiledFlow.getPathFromNodeKey(nextNodeKey ?? undefined);
     },
     progress: compiledFlow.progressByKey(nodeKey),

@@ -1,4 +1,5 @@
-import type { TransitionConfig } from "./types.ts";
+import type { CompiledFlow } from "./compileFlowConfig.ts";
+import type { InferredUserData, NodeKey, PageConfigMap, TransitionConfig } from "./types.ts";
 /**
  * Evaluates a route definition against user data to determine the next target.
  * Guards are checked in order; first matching branch wins.
@@ -16,3 +17,8 @@ export declare const extractEdges: <FlowKey, UserData>(route?: TransitionConfig<
 export declare const evaluateAllBranches: <FlowKey, UserData>(route: TransitionConfig<FlowKey, UserData> | undefined, data: UserData, options?: {
     excludeArrayTransitions?: boolean;
 }) => FlowKey[];
+export declare const findNextIncompleteNode: <C extends PageConfigMap>(compiledFlow: CompiledFlow<C>, guardData: InferredUserData<C> & {
+    pageData: {
+        arrayIndexes: number[];
+    };
+}, currentNodeKey: NodeKey<C>) => NodeKey<C> | null;

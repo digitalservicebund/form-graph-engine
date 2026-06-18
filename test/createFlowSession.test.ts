@@ -215,6 +215,168 @@ describe("createFlowSession", () => {
       );
       deepStrictEqual(session.nextPath(), "/no");
     });
+
+    it("does not auto-skip completed form pages", () => {
+      const autoSkipFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          contact: { path: "/contact", pageSchema: { email: z.string() } },
+          address: { path: "/address", pageSchema: { city: z.string() } },
+          review: { path: "/review", pageSchema: { confirm: z.boolean() } },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "contact",
+          contact: "address",
+          address: "review",
+          review: null,
+        },
+      });
+
+      const session = createFlowSession(
+        autoSkipFlow,
+        { email: "a@b.de", city: "Berlin" },
+        "/start",
+      );
+      deepStrictEqual(session.nextPath(), "/contact");
+    });
+
+    it("does not skip schema-less pages", () => {
+      const withInfoPageFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          info: { path: "/info" },
+          form: { path: "/form", pageSchema: { done: z.boolean() } },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "info",
+          info: "form",
+          form: null,
+        },
+      });
+
+      const session = createFlowSession(withInfoPageFlow, {}, "/start");
+      deepStrictEqual(session.nextPath(), "/info");
+    });
+
+    it("returns immediate next path even when following pages are complete", () => {
+      const withInfoPageFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          info: { path: "/info" },
+          form: { path: "/form", pageSchema: { done: z.boolean() } },
+          review: { path: "/review", pageSchema: { confirm: z.boolean() } },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "info",
+          info: "form",
+          form: "review",
+          review: null,
+        },
+      });
+
+      const session = createFlowSession(
+        withInfoPageFlow,
+        { done: true },
+        "/start",
+      );
+      deepStrictEqual(session.nextPath(), "/info");
+    });
+  });
+
+  describe("nextIncomplete", () => {
+    it("returns the deeper incomplete form page after schema-less pages", () => {
+      const withInfoPageFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          info: { path: "/info" },
+          form: { path: "/form", pageSchema: { done: z.boolean() } },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "info",
+          info: "form",
+          form: null,
+        },
+      });
+
+      const session = createFlowSession(withInfoPageFlow, {}, "/start");
+      deepStrictEqual(session.nextIncomplete(), "/form");
+    });
+
+    it("skips schema-less page when the following page is already complete", () => {
+      const withInfoPageFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          info: { path: "/info" },
+          form: { path: "/form", pageSchema: { done: z.boolean() } },
+          review: { path: "/review", pageSchema: { confirm: z.boolean() } },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "info",
+          info: "form",
+          form: "review",
+          review: null,
+        },
+      });
+
+      const session = createFlowSession(
+        withInfoPageFlow,
+        { done: true },
+        "/start",
+      );
+      deepStrictEqual(session.nextIncomplete(), "/review");
+    });
+
+    it("walks across multiple schema-less pages and returns the deepest incomplete form page", () => {
+      const multiInfoFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          infoOne: { path: "/info-1" },
+          infoTwo: { path: "/info-2" },
+          profile: { path: "/profile", pageSchema: { name: z.string() } },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "infoOne",
+          infoOne: "infoTwo",
+          infoTwo: "profile",
+          profile: null,
+        },
+      });
+
+      const session = createFlowSession(multiInfoFlow, {}, "/start");
+      deepStrictEqual(session.nextIncomplete(), "/profile");
+    });
+
+    it("returns the last reachable node when no incomplete form page exists", () => {
+      const allDoneFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          info: { path: "/info" },
+          form: { path: "/form", pageSchema: { done: z.boolean() } },
+          done: { path: "/done" },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "info",
+          info: "form",
+          form: "done",
+          done: null,
+        },
+      });
+
+      const session = createFlowSession(allDoneFlow, { done: true }, "/start");
+      deepStrictEqual(session.nextIncomplete(), "/done");
+    });
+
+    it("returns undefined at the terminal step", () => {
+      const session = createFlowSession(flow, noData, "/end");
+      deepStrictEqual(session.nextIncomplete(), undefined);
+    });
   });
 
   describe("prevPath", () => {

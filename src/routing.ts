@@ -1,4 +1,10 @@
-import type { TransitionConfig } from "./types.ts";
+import type { CompiledFlow } from "./compileFlowConfig.ts";
+import type {
+  InferredUserData,
+  NodeKey,
+  PageConfigMap,
+  TransitionConfig,
+} from "./types.ts";
 
 /**
  * Evaluates a route definition against user data to determine the next target.
@@ -69,4 +75,66 @@ export const evaluateAllBranches = <FlowKey, UserData>(
     return branches;
   }
   return [];
+};
+
+const isPageCompleted = <C extends PageConfigMap>(
+  compiledFlow: CompiledFlow<C>,
+  userData: InferredUserData<C>,
+  nodeKey: NodeKey<C>,
+): boolean => {
+  const nodePath = compiledFlow.getPathFromNodeKey(nodeKey);
+  if (!nodePath) return false;
+
+  const fieldNames = compiledFlow.getFieldNames(nodePath);
+  // Schema-less pages stay visitable. Stateless session cannot infer prior visits.
+  if (fieldNames.length === 0) return false;
+
+  const schema = compiledFlow.getSchema(nodePath);
+  if (!schema) return false;
+
+  const pageData = Object.fromEntries(
+    Object.entries(userData).filter(([key]) => fieldNames.includes(key)),
+  );
+
+  return schema.safeParse(pageData).success;
+};
+
+export const findNextIncompleteNode = <C extends PageConfigMap>(
+  compiledFlow: CompiledFlow<C>,
+  guardData: InferredUserData<C> & { pageData: { arrayIndexes: number[] } },
+  currentNodeKey: NodeKey<C>,
+): NodeKey<C> | null => {
+  const getNextNode = (
+    nodeKey: NodeKey<C>,
+    pageData: { arrayIndexes: number[] },
+  ): NodeKey<C> | null =>
+    evaluateRoute(compiledFlow.transitions[nodeKey], {
+      ...guardData,
+      pageData,
+    });
+
+  const visited = new Set<NodeKey<C>>();
+  let current: NodeKey<C> | null = getNextNode(
+    currentNodeKey,
+    guardData.pageData,
+  );
+  let lastNode: NodeKey<C> | null = null;
+  let lastIncompleteNode: NodeKey<C> | null = null;
+
+  while (current) {
+    if (visited.has(current)) break;
+    visited.add(current);
+    lastNode = current;
+
+    const nodePath = compiledFlow.getPathFromNodeKey(current);
+    const hasFieldSchema =
+      nodePath != null && compiledFlow.getFieldNames(nodePath).length > 0;
+    if (hasFieldSchema && !isPageCompleted(compiledFlow, guardData, current)) {
+      lastIncompleteNode = current;
+    }
+
+    current = getNextNode(current, { arrayIndexes: [] });
+  }
+
+  return lastIncompleteNode ?? lastNode;
 };
