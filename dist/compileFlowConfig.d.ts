@@ -1,4 +1,4 @@
-import type { NodeKey, PageConfigMap, SchemaForPath, TransitionConfigMap } from "./types.ts";
+import type { FieldNameForNodeKey, FieldNameForPath, NodeKey, PageConfigMap, SchemaForPath, TransitionConfigMap } from "./types.ts";
 /**
  * Compiles a flow configuration into an optimized, executable form.
  * Performs static analysis, path mapping, and caches computed properties.
@@ -13,9 +13,18 @@ export declare const compileFlowConfig: <C extends PageConfigMap>({ pages, initi
     initialStep: NodeKey<C>;
     initialPath: string;
     getArrayInfo: (path: string) => Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
-    getSchema: <P extends string>(path: P) => SchemaForPath<C, P>;
-    getFieldNames: (path: string) => string[];
-    getFieldNamesByNodeKey: (nodeKey: NodeKey<C>) => string[];
+    getSchema: {
+        <P extends string>(path: P): SchemaForPath<C, P>;
+        (path: string): SchemaForPath<C, string>;
+    };
+    getFieldNames: {
+        <P extends string>(path: P): Array<FieldNameForPath<C, P>>;
+        (path: string): string[];
+    };
+    getFieldNamesByNodeKey: {
+        <K extends NodeKey<C>>(nodeKey: K): Array<FieldNameForNodeKey<C, K>>;
+        (nodeKey: NodeKey<C>): string[];
+    };
     arrayInfoCache: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>;
     getNodeKeyFromPath: (path: string) => Extract<keyof C, string> | undefined;
     getPathFromNodeKey: (nodeKey?: NodeKey<C>) => string | undefined;

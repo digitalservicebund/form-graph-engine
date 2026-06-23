@@ -34,6 +34,17 @@ export const compileFlowConfig = ({ pages, initialStep, transitions, }) => {
             return undefined;
         return getPageByNodeKey(nodeKey).path;
     };
+    function getSchema(path) {
+        const nodeKey = pathMap[path];
+        return nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined;
+    }
+    function getFieldNames(path) {
+        const nodeKey = pathMap[path];
+        return nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : [];
+    }
+    function getFieldNamesByNodeKey(nodeKey) {
+        return pageSchemaInfoCache[nodeKey]?.fieldNames ?? [];
+    }
     return {
         pages,
         transitions,
@@ -43,15 +54,9 @@ export const compileFlowConfig = ({ pages, initialStep, transitions, }) => {
             const nodeKey = pathMap[path];
             return nodeKey ? arrayInfoCache[nodeKey] : undefined;
         },
-        getSchema: (path) => {
-            const nodeKey = pathMap[path];
-            return (nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined);
-        },
-        getFieldNames: (path) => {
-            const nodeKey = pathMap[path];
-            return nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : [];
-        },
-        getFieldNamesByNodeKey: (nodeKey) => pageSchemaInfoCache[nodeKey]?.fieldNames ?? [],
+        getSchema,
+        getFieldNames,
+        getFieldNamesByNodeKey,
         arrayInfoCache,
         getNodeKeyFromPath,
         getPathFromNodeKey,

@@ -45,11 +45,10 @@ export const createFlowSession = <C extends PageConfigMap, P extends string>(
     userData,
   );
   const fieldNames = compiledFlow.getFieldNames(normalizedPath);
+  const fieldNameSet = new Set(fieldNames.map(String));
 
   const pageData = Object.fromEntries(
-    Object.entries(prunedUserData).filter(([key, _]) =>
-      fieldNames.includes(key),
-    ),
+    Object.entries(prunedUserData).filter(([key, _]) => fieldNameSet.has(key)),
   ) as InferredUserData<C>;
 
   return {

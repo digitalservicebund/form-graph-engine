@@ -156,13 +156,26 @@ export declare const createFlowSession: <C extends PageConfigMap, P extends stri
             data: infer Output_1;
         };
     } ? Output_1 : never; } : never; } : {} : never : never) ? T_1 extends any ? (k: T_1) => void : never : never : never) extends (k: infer I) => void ? I : never>;
-    fieldNames: string[];
+    fieldNames: (C[Extract<keyof C, string>] extends infer T_3 ? T_3 extends C[Extract<keyof C, string>] ? T_3 extends {
+        pageSchema?: infer S_2 extends import("./types.ts").PageSchema | undefined;
+    } ? S_2 extends import("./types.ts").ObjectSchemaLike<infer Shape extends Record<string, unknown>> ? Extract<keyof Shape, string> : S_2 extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? Extract<keyof S_2, string> : never : never : never : never)[];
     initialPath: string;
     arrayInfo: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
     path: string[];
     isComplete: boolean;
     statusTree: Record<string, import("./statusTree.ts").StatusNode>;
-    prunedUserData: Partial<((C[keyof C] extends infer T_3 ? T_3 extends C[keyof C] ? T_3 extends {
+    prunedUserData: Partial<((C[keyof C] extends infer T_4 ? T_4 extends C[keyof C] ? T_4 extends {
         pageSchema: infer S;
     } ? S extends {
         parse(data: unknown): infer Output;
@@ -193,7 +206,7 @@ export declare const createFlowSession: <C extends PageConfigMap, P extends stri
             success: true;
             data: infer Output_1;
         };
-    } ? Output_1 : never; } : never : T_3 extends {
+    } ? Output_1 : never; } : never : T_4 extends {
         arraySummary: {
             name: infer N extends string;
             schema: infer S_1 extends {
@@ -236,7 +249,7 @@ export declare const createFlowSession: <C extends PageConfigMap, P extends stri
             success: true;
             data: infer Output_1;
         };
-    } ? Output_1 : never; } : never; } : {} : never : never) extends infer T_4 ? T_4 extends (C[keyof C] extends infer T_5 ? T_5 extends C[keyof C] ? T_5 extends {
+    } ? Output_1 : never; } : never; } : {} : never : never) extends infer T_5 ? T_5 extends (C[keyof C] extends infer T_6 ? T_6 extends C[keyof C] ? T_6 extends {
         pageSchema: infer S;
     } ? S extends {
         parse(data: unknown): infer Output;
@@ -267,7 +280,7 @@ export declare const createFlowSession: <C extends PageConfigMap, P extends stri
             success: true;
             data: infer Output_1;
         };
-    } ? Output_1 : never; } : never : T_5 extends {
+    } ? Output_1 : never; } : never : T_6 extends {
         arraySummary: {
             name: infer N extends string;
             schema: infer S_1 extends {
@@ -310,7 +323,7 @@ export declare const createFlowSession: <C extends PageConfigMap, P extends stri
             success: true;
             data: infer Output_1;
         };
-    } ? Output_1 : never; } : never; } : {} : never : never) ? T_4 extends any ? (k: T_4) => void : never : never : never) extends (k: infer I) => void ? I : never>;
+    } ? Output_1 : never; } : never; } : {} : never : never) ? T_5 extends any ? (k: T_5) => void : never : never : never) extends (k: infer I) => void ? I : never>;
     isReachable: (targetPath: string) => boolean;
     prevPath: string | undefined;
     nextPath: (newUserData?: InferredUserData<C>) => string | undefined;

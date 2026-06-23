@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `flowSession.nextIncomplete()`: navigate to the first incomplete page
 - `flowSession.pageData`: expose current page's data
+- `flowSession.fieldNames`: strongly infer from page schemas
 - tests: add type tests
 - Add typed pruned userdata
 - CI: Dependabot for automated dependency updates

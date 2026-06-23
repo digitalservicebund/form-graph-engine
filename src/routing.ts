@@ -86,6 +86,7 @@ const isPageCompleted = <C extends PageConfigMap>(
   if (!nodePath) return false;
 
   const fieldNames = compiledFlow.getFieldNames(nodePath);
+  const fieldNameSet = new Set(fieldNames.map(String));
   // Schema-less pages stay visitable. Stateless session cannot infer prior visits.
   if (fieldNames.length === 0) return false;
 
@@ -93,7 +94,7 @@ const isPageCompleted = <C extends PageConfigMap>(
   if (!schema) return false;
 
   const pageData = Object.fromEntries(
-    Object.entries(userData).filter(([key]) => fieldNames.includes(key)),
+    Object.entries(userData).filter(([key]) => fieldNameSet.has(key)),
   );
 
   return schema.safeParse(pageData).success;

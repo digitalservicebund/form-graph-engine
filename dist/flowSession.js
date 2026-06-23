@@ -21,7 +21,8 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
     const prevNodeKey = simulation.parentMap.get(nodeKey);
     const prunedUserData = pruneUserData(compiledFlow, simulation.visitedContexts, userData);
     const fieldNames = compiledFlow.getFieldNames(normalizedPath);
-    const pageData = Object.fromEntries(Object.entries(prunedUserData).filter(([key, _]) => fieldNames.includes(key)));
+    const fieldNameSet = new Set(fieldNames.map(String));
+    const pageData = Object.fromEntries(Object.entries(prunedUserData).filter(([key, _]) => fieldNameSet.has(key)));
     return {
         nodeKey,
         pageSchema: compiledFlow.getSchema(normalizedPath),

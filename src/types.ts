@@ -58,6 +58,33 @@ type NodeKeyForPath<C extends PageConfigMap, Path extends string> = {
   [K in NodeKey<C>]: C[K]["path"] extends Path ? K : never;
 }[NodeKey<C>];
 
+type FieldNameForSchema<S> =
+  S extends ObjectSchemaLike<infer Shape>
+    ? Extract<keyof Shape, string>
+    : S extends PageShape
+      ? Extract<keyof S, string>
+      : never;
+
+type FieldNameForNode<Node> = Node extends {
+  pageSchema?: infer S extends PageSchema | undefined;
+}
+  ? FieldNameForSchema<S>
+  : never;
+
+export type FieldNameForNodeKey<
+  C extends PageConfigMap,
+  K extends NodeKey<C>,
+> = FieldNameForNode<C[K]>;
+
+export type FieldNameForPath<
+  C extends PageConfigMap,
+  Path extends string,
+> = string extends Path
+  ? FieldNameForNode<C[NodeKey<C>]>
+  : [NodeKeyForPath<C, Path>] extends [never]
+    ? never
+    : FieldNameForNode<C[NodeKeyForPath<C, Path>]>;
+
 export type SchemaForPath<
   C extends PageConfigMap,
   Path extends string,

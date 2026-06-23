@@ -66,13 +66,14 @@ const isPageCompleted = (compiledFlow, userData, nodeKey) => {
     if (!nodePath)
         return false;
     const fieldNames = compiledFlow.getFieldNames(nodePath);
+    const fieldNameSet = new Set(fieldNames.map(String));
     // Schema-less pages stay visitable. Stateless session cannot infer prior visits.
     if (fieldNames.length === 0)
         return false;
     const schema = compiledFlow.getSchema(nodePath);
     if (!schema)
         return false;
-    const pageData = Object.fromEntries(Object.entries(userData).filter(([key]) => fieldNames.includes(key)));
+    const pageData = Object.fromEntries(Object.entries(userData).filter(([key]) => fieldNameSet.has(key)));
     return schema.safeParse(pageData).success;
 };
 export const findNextIncompleteNode = (compiledFlow, guardData, currentNodeKey) => {

@@ -24,6 +24,16 @@ const typedSchema: z.ZodObject<{ age: z.ZodNumber }> = flow.getSchema("/typed");
 const startSchema: undefined = flow.getSchema("/start");
 const unknownSchema: undefined = flow.getSchema("/unknown");
 
+const infoFieldNames: Array<"name" | "answer"> = flow.getFieldNames("/info");
+const typedFieldNames: Array<"age"> = flow.getFieldNames("/typed");
+const startFieldNames: never[] = flow.getFieldNames("/start");
+const unknownFieldNames: never[] = flow.getFieldNames("/unknown");
+const infoFieldNamesByNodeKey: Array<"name" | "answer"> =
+  flow.getFieldNamesByNodeKey("info");
+const typedFieldNamesByNodeKey: Array<"age"> =
+  flow.getFieldNamesByNodeKey("typed");
+const startFieldNamesByNodeKey: never[] = flow.getFieldNamesByNodeKey("start");
+
 const parsedRawShape: { name: string; answer: "ja" | "nein" } =
   rawShapeSchema.parse({ name: "Ada", answer: "ja" });
 
@@ -42,6 +52,13 @@ void rawShapeSchema;
 void typedSchema;
 void startSchema;
 void unknownSchema;
+void infoFieldNames;
+void typedFieldNames;
+void startFieldNames;
+void unknownFieldNames;
+void infoFieldNamesByNodeKey;
+void typedFieldNamesByNodeKey;
+void startFieldNamesByNodeKey;
 void parsedRawShape;
 void typedSessionSchema;
 void startSessionSchema;

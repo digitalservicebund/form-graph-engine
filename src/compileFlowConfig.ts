@@ -3,6 +3,8 @@ import { normalizeSchema, type PageSchemaInfo } from "./normalizeSchema.ts";
 import { precomputeProgress } from "./precomputeProgress.ts";
 import { validatePagePaths } from "./validatePageConfig.ts";
 import type {
+  FieldNameForNodeKey,
+  FieldNameForPath,
   NodeKey,
   PageConfigMap,
   SchemaForPath,
@@ -54,6 +56,30 @@ export const compileFlowConfig = <C extends PageConfigMap>({
     return getPageByNodeKey(nodeKey).path;
   };
 
+  function getSchema<P extends string>(path: P): SchemaForPath<C, P>;
+  function getSchema(path: string): SchemaForPath<C, string>;
+  function getSchema(path: string) {
+    const nodeKey = pathMap[path];
+    return nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined;
+  }
+
+  function getFieldNames<P extends string>(
+    path: P,
+  ): Array<FieldNameForPath<C, P>>;
+  function getFieldNames(path: string): string[];
+  function getFieldNames(path: string) {
+    const nodeKey = pathMap[path];
+    return nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : [];
+  }
+
+  function getFieldNamesByNodeKey<K extends NodeKey<C>>(
+    nodeKey: K,
+  ): Array<FieldNameForNodeKey<C, K>>;
+  function getFieldNamesByNodeKey(nodeKey: NodeKey<C>): string[];
+  function getFieldNamesByNodeKey(nodeKey: NodeKey<C>) {
+    return pageSchemaInfoCache[nodeKey]?.fieldNames ?? [];
+  }
+
   return {
     pages,
     transitions,
@@ -64,18 +90,9 @@ export const compileFlowConfig = <C extends PageConfigMap>({
       const nodeKey = pathMap[path];
       return nodeKey ? arrayInfoCache[nodeKey] : undefined;
     },
-    getSchema: <P extends string>(path: P): SchemaForPath<C, P> => {
-      const nodeKey = pathMap[path];
-      return (
-        nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined
-      ) as SchemaForPath<C, P>;
-    },
-    getFieldNames: (path: string): string[] => {
-      const nodeKey = pathMap[path];
-      return nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : [];
-    },
-    getFieldNamesByNodeKey: (nodeKey: NodeKey<C>): string[] =>
-      pageSchemaInfoCache[nodeKey]?.fieldNames ?? [],
+    getSchema,
+    getFieldNames,
+    getFieldNamesByNodeKey,
     arrayInfoCache,
     getNodeKeyFromPath,
     getPathFromNodeKey,
