@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      zod:
-        specifier: 4.0.0
-        version: 4.0.0
     devDependencies:
       '@types/node':
         specifier: ^25.9.2
@@ -24,6 +20,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      zod:
+        specifier: 4.0.0
+        version: 4.0.0
 
 packages:
 

@@ -36,13 +36,14 @@
     "node": ">=18",
     "pnpm": "^11"
   },
-  "dependencies": {
-    "zod": "4.0.0"
+  "peerDependencies": {
+    "zod": ">=4 <5"
   },
   "devDependencies": {
     "@types/node": "^25.9.2",
     "oxfmt": "^0.54.0",
     "oxlint": "^1.69.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "zod": "4.0.0"
   }
 }
