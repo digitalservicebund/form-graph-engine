@@ -33,7 +33,7 @@
   "license": "MIT",
   "packageManager": "pnpm@11.5.2",
   "engines": {
-    "node": ">=18",
+    "node": ">=22",
     "pnpm": "^11"
   },
   "peerDependencies": {
