@@ -31,7 +31,14 @@
   ],
   "author": "chohner",
   "license": "MIT",
-  "packageManager": "pnpm@11.5.2",
+  "packageManager": "pnpm@11.8.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^26.0.0",
+      "onFail": "download"
+    }
+  },
   "engines": {
     "node": ">=22",
     "pnpm": "^11"
