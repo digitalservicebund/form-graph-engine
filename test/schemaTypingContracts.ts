@@ -21,6 +21,7 @@ const flow = compileFlowConfig({ pages, initialStep: "start", transitions });
 
 const rawShapeSchema = flow.getSchema("/info");
 const typedSchema: z.ZodObject<{ age: z.ZodNumber }> = flow.getSchema("/typed");
+const startSchema: undefined = flow.getSchema("/start");
 const unknownSchema: undefined = flow.getSchema("/unknown");
 
 const parsedRawShape: { name: string; answer: "ja" | "nein" } =
@@ -31,13 +32,16 @@ const typedSessionSchema: z.ZodObject<{ age: z.ZodNumber }> = createFlowSession(
   {},
   "/typed",
 ).pageSchema;
-const startSessionSchema = createFlowSession(flow, {}, "/start").pageSchema;
-const parsedStartSession: {} = startSessionSchema.parse({});
+const startSessionSchema: undefined = createFlowSession(
+  flow,
+  {},
+  "/start",
+).pageSchema;
 
 void rawShapeSchema;
 void typedSchema;
+void startSchema;
 void unknownSchema;
 void parsedRawShape;
 void typedSessionSchema;
 void startSessionSchema;
-void parsedStartSession;

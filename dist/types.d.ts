@@ -11,21 +11,19 @@ type SchemaLike<Output = unknown> = {
     safeParse(data: unknown): SafeParseResult<Output>;
 };
 type PageShape = Record<string, SchemaLike>;
-export type ObjectSchemaLike<Shape extends Record<string, unknown> = PageShape> = SchemaLike<{
+type ShapeOutput<Shape extends Record<string, unknown>> = {
     [K in keyof Shape]: Shape[K] extends SchemaLike<infer Output> ? Output : never;
-}> & {
+};
+export type ObjectSchemaLike<Shape extends Record<string, unknown> = PageShape> = SchemaLike<ShapeOutput<Shape>> & {
     shape: Shape;
 };
 type ArraySchemaLike<Item = unknown> = SchemaLike<Item[]>;
-type InferSchema<S> = S extends SchemaLike<infer Output> ? Output : S extends PageShape ? {
-    [K in keyof S]: S[K] extends SchemaLike<infer Output> ? Output : never;
-} : never;
+type InferSchema<S> = S extends SchemaLike<infer Output> ? Output : S extends PageShape ? ShapeOutput<S> : never;
 export type PageSchema = ObjectSchemaLike | PageShape;
-type EmptyObjectSchema = ObjectSchemaLike<{}>;
-type CompiledPageSchema<S extends PageSchema | undefined> = S extends ObjectSchemaLike ? S : S extends PageShape ? ObjectSchemaLike<S> : EmptyObjectSchema;
+type CompiledPageSchema<S extends PageSchema | undefined> = S extends ObjectSchemaLike ? S : S extends PageShape ? ObjectSchemaLike<S> : undefined;
 type CompiledPageSchemaForNode<Node> = Node extends {
-    pageSchema: infer S extends PageSchema;
-} ? CompiledPageSchema<S> : EmptyObjectSchema;
+    pageSchema?: infer S extends PageSchema | undefined;
+} ? CompiledPageSchema<S> : undefined;
 type PageConfig = {
     path: string;
     pageSchema?: PageSchema;

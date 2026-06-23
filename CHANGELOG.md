@@ -25,3 +25,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minimum Node.js version raised to 22
 - Remove need for matched zod version
 - simplified normalizeSchema
+- pageSchema may be `undefined`

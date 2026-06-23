@@ -132,9 +132,9 @@ describe("createFlowSession", () => {
       ok(session.pageSchema instanceof z.ZodObject);
     });
 
-    it("returns an empty-object schema for pages without a schema", () => {
+    it("returns undefined for pages without a schema", () => {
       const session = createFlowSession(flow, noData, "/start");
-      deepStrictEqual(session.pageSchema?.parse({}), {});
+      deepStrictEqual(session.pageSchema, undefined);
     });
   });
 

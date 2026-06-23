@@ -1,6 +1,6 @@
 import { type ObjectSchemaLike, type PageSchema } from "./types.ts";
 export type PageSchemaInfo = {
-    compiledSchema: ObjectSchemaLike;
+    compiledSchema: ObjectSchemaLike | undefined;
     fieldNames: string[];
 };
 /**

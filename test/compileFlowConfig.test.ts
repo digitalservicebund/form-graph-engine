@@ -79,9 +79,9 @@ describe("compileFlowConfig", () => {
       deepStrictEqual(schema instanceof z.ZodObject, true);
     });
 
-    it("pages without schema return an empty schema that parses {}", () => {
+    it("pages without schema return undefined", () => {
       const schema = flow.getSchema("/start");
-      deepStrictEqual(schema?.parse({}), {});
+      deepStrictEqual(schema, undefined);
     });
 
     it("returns undefined for an unknown path", () => {
