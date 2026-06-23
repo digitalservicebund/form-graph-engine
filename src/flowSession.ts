@@ -1,6 +1,6 @@
 import { simulate } from "./simulate.ts";
 import type { CompiledFlow } from "./compileFlowConfig.ts";
-import type { PageConfigMap, InferredUserData } from "./types.ts";
+import type { InferredUserData, PageConfigMap } from "./types.ts";
 import { evaluateRoute, findNextIncompleteNode } from "./routing.ts";
 import { buildStatusTree } from "./statusTree.ts";
 import { pruneUserData } from "./pruneUserData.ts";
@@ -19,10 +19,10 @@ const getCurrentNode = <C extends PageConfigMap>(
  * Creates a session for the current step in a flow.
  * Resolves navigation, schemas, and status based on current user data and path.
  */
-export const createFlowSession = <C extends PageConfigMap>(
+export const createFlowSession = <C extends PageConfigMap, P extends string>(
   compiledFlow: CompiledFlow<C>,
-  userData: InferredUserData<C>,
-  currentPath: string,
+  userData: NoInfer<InferredUserData<C>>,
+  currentPath: P,
 ) => {
   const { nodeKey, normalizedPath, currentPageData } = getCurrentNode(
     compiledFlow,
@@ -54,7 +54,7 @@ export const createFlowSession = <C extends PageConfigMap>(
 
   return {
     nodeKey,
-    pageSchema: compiledFlow.getSchema(normalizedPath),
+    pageSchema: compiledFlow.getSchema(normalizedPath as P),
     pageData,
     fieldNames,
     initialPath: compiledFlow.initialPath,
@@ -92,7 +92,3 @@ export const createFlowSession = <C extends PageConfigMap>(
     progress: compiledFlow.progressByKey(nodeKey),
   };
 };
-
-export type FlowSession<C extends PageConfigMap> = ReturnType<
-  typeof createFlowSession<C>
->;

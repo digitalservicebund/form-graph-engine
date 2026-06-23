@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `flowSession.nextIncomplete()`: navigate to the first incomplete page
 - `flowSession.pageData`: expose current page's data
+- tests: add type tests
+- Add typed pruned userdata
 - CI: Dependabot for automated dependency updates
 - CI: node version matrix (tests run across multiple Node versions)
 
@@ -21,3 +23,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `nextPath()`: new optional `newUserData` argument
 - Zod 4 set as peer dependency (`>=4 <5`)
 - Minimum Node.js version raised to 22
+- Remove need for matched zod version
+- simplified normalizeSchema

@@ -2,7 +2,12 @@ import { buildArrayInfoCache } from "./arrays.ts";
 import { normalizeSchema, type PageSchemaInfo } from "./normalizeSchema.ts";
 import { precomputeProgress } from "./precomputeProgress.ts";
 import { validatePagePaths } from "./validatePageConfig.ts";
-import type { NodeKey, PageConfigMap, TransitionConfigMap } from "./types.ts";
+import type {
+  NodeKey,
+  PageConfigMap,
+  SchemaForPath,
+  TransitionConfigMap,
+} from "./types.ts";
 
 const buildPathAndSchemaMaps = <C extends PageConfigMap>(pages: C) => {
   const pathMap: Record<string, NodeKey<C>> = {};
@@ -59,9 +64,11 @@ export const compileFlowConfig = <C extends PageConfigMap>({
       const nodeKey = pathMap[path];
       return nodeKey ? arrayInfoCache[nodeKey] : undefined;
     },
-    getSchema: (path: string) => {
+    getSchema: <P extends string>(path: P): SchemaForPath<C, P> => {
       const nodeKey = pathMap[path];
-      return nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined;
+      return (
+        nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined
+      ) as SchemaForPath<C, P>;
     },
     getFieldNames: (path: string): string[] => {
       const nodeKey = pathMap[path];

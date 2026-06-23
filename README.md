@@ -34,7 +34,7 @@ A form is configured in two collections, _pages_ and _transitions_, plus the sta
 
 #### Pages
 
-Each page needs to configure a `path`, and optionally a `pageSchema` (accessible at runtime and used to infer user data types). Each page is indexed by a `pageKey`, which is used to refer to that page throughout the configuration.
+Each page needs to configure a `path`, and optionally a `pageSchema` (accessible at runtime and used to infer user data types). `pageSchema` can be either a full Zod schema or a raw shape object that will be compiled to `z.object(...)`. Each page is indexed by a `pageKey`, which is used to refer to that page throughout the configuration.
 
 ```ts
 const pages = {
@@ -133,7 +133,7 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 #### Page data
 
-- `session.pageSchema` is the Zod schema for the current page as configured in `pages` (`undefined` for schema-less pages).
+- `session.pageSchema` is the exact Zod schema for the current page. Raw shapes are exposed as compiled `ZodObject` instances.
 - `session.fieldNames` is the list of field names defined by the current page's schema.
 - `session.pageData` is the subset of user data for the current page's fields. Useful for pre-filling fields on reloads.
 - `session.prunedUserData` is the user data with data of unreachable (and therefore irrelevant) pages removed. Use this as the source of truth for further processing.

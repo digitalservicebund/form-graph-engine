@@ -1,31 +1,75 @@
 import type { PageData } from "./pageDataSchema.ts";
 
-export type ZodSchemaLike<Output = unknown, Input = unknown> = {
-  parse: (value: Input) => Output;
-  safeParse: (
-    value: Input,
-  ) => { success: true; data: Output } | { success: false; error: unknown };
+type SafeParseResult<Output> =
+  | { success: true; data: Output }
+  | { success: false; error: unknown };
+
+type SchemaLike<Output = unknown> = {
+  parse(data: unknown): Output;
+  safeParse(data: unknown): SafeParseResult<Output>;
 };
 
-export type ZodRawShapeLike = Readonly<Record<string, ZodSchemaLike>>;
+type PageShape = Record<string, SchemaLike>;
+
+export type ObjectSchemaLike<
+  Shape extends Record<string, unknown> = PageShape,
+> = SchemaLike<{
+  [K in keyof Shape]: Shape[K] extends SchemaLike<infer Output>
+    ? Output
+    : never;
+}> & { shape: Shape };
+
+type ArraySchemaLike<Item = unknown> = SchemaLike<Item[]>;
 
 type InferSchema<S> =
-  S extends ZodSchemaLike<infer Output, unknown>
+  S extends SchemaLike<infer Output>
     ? Output
-    : S extends ZodRawShapeLike
-      ? { [K in keyof S]: InferSchema<S[K]> }
+    : S extends PageShape
+      ? {
+          [K in keyof S]: S[K] extends SchemaLike<infer Output>
+            ? Output
+            : never;
+        }
       : never;
 
-export type PageSchema = ZodSchemaLike | ZodRawShapeLike;
+export type PageSchema = ObjectSchemaLike | PageShape;
+
+type EmptyObjectSchema = ObjectSchemaLike<{}>;
+
+type CompiledPageSchema<S extends PageSchema | undefined> =
+  S extends ObjectSchemaLike
+    ? S
+    : S extends PageShape
+      ? ObjectSchemaLike<S>
+      : EmptyObjectSchema;
+
+type CompiledPageSchemaForNode<Node> = Node extends {
+  pageSchema: infer S extends PageSchema;
+}
+  ? CompiledPageSchema<S>
+  : EmptyObjectSchema;
 
 type PageConfig = {
   path: string;
   pageSchema?: PageSchema;
-  arraySummary?: { name: string; schema: ZodSchemaLike };
+  arraySummary?: { name: string; schema: ArraySchemaLike };
 };
 
 export type PageConfigMap = Record<string, PageConfig>;
 export type NodeKey<C extends PageConfigMap> = Extract<keyof C, string>;
+
+type NodeKeyForPath<C extends PageConfigMap, Path extends string> = {
+  [K in NodeKey<C>]: C[K]["path"] extends Path ? K : never;
+}[NodeKey<C>];
+
+export type SchemaForPath<
+  C extends PageConfigMap,
+  Path extends string,
+> = string extends Path
+  ? CompiledPageSchemaForNode<C[NodeKey<C>]> | undefined
+  : [NodeKeyForPath<C, Path>] extends [never]
+    ? undefined
+    : CompiledPageSchemaForNode<C[NodeKeyForPath<C, Path>]>;
 
 // --- User Data Inference ---
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
@@ -37,7 +81,10 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 type ExtractNodeSchema<Node> = Node extends { pageSchema: infer S }
   ? InferSchema<S>
   : Node extends {
-        arraySummary: { name: infer N extends string; schema: infer S };
+        arraySummary: {
+          name: infer N extends string;
+          schema: infer S extends ArraySchemaLike;
+        };
       }
     ? { [Key in N]: InferSchema<S> }
     : {};

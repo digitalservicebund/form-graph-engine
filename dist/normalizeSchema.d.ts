@@ -1,10 +1,10 @@
-import { type PageSchema, type ZodSchemaLike } from "./types.ts";
+import { type ObjectSchemaLike, type PageSchema } from "./types.ts";
 export type PageSchemaInfo = {
-    compiledSchema: ZodSchemaLike;
+    compiledSchema: ObjectSchemaLike;
     fieldNames: string[];
 };
 /**
  * Normalizes a page schema into a compiled Zod type and extracts field names.
- * Handles both Zod types and raw shape objects.
+ * Handles both raw shapes and ZodObjects.
  */
 export declare const normalizeSchema: (pageSchema?: PageSchema) => PageSchemaInfo;

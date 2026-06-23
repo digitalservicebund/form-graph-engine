@@ -1,4 +1,4 @@
-import type { NodeKey, PageConfigMap, TransitionConfigMap } from "./types.ts";
+import type { NodeKey, PageConfigMap, SchemaForPath, TransitionConfigMap } from "./types.ts";
 /**
  * Compiles a flow configuration into an optimized, executable form.
  * Performs static analysis, path mapping, and caches computed properties.
@@ -13,7 +13,7 @@ export declare const compileFlowConfig: <C extends PageConfigMap>({ pages, initi
     initialStep: NodeKey<C>;
     initialPath: string;
     getArrayInfo: (path: string) => Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
-    getSchema: (path: string) => import("./types.ts").ZodSchemaLike | undefined;
+    getSchema: <P extends string>(path: P) => SchemaForPath<C, P>;
     getFieldNames: (path: string) => string[];
     getFieldNamesByNodeKey: (nodeKey: NodeKey<C>) => string[];
     arrayInfoCache: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>;

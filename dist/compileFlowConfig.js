@@ -45,7 +45,7 @@ export const compileFlowConfig = ({ pages, initialStep, transitions, }) => {
         },
         getSchema: (path) => {
             const nodeKey = pathMap[path];
-            return nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined;
+            return (nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined);
         },
         getFieldNames: (path) => {
             const nodeKey = pathMap[path];

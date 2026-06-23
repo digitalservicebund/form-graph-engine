@@ -1,27 +1,161 @@
 import type { CompiledFlow } from "./compileFlowConfig.ts";
-import type { PageConfigMap, InferredUserData } from "./types.ts";
+import type { InferredUserData, PageConfigMap } from "./types.ts";
 /**
  * Creates a session for the current step in a flow.
  * Resolves navigation, schemas, and status based on current user data and path.
  */
-export declare const createFlowSession: <C extends PageConfigMap>(compiledFlow: CompiledFlow<C>, userData: InferredUserData<C>, currentPath: string) => {
+export declare const createFlowSession: <C extends PageConfigMap, P extends string>(compiledFlow: CompiledFlow<C>, userData: NoInfer<InferredUserData<C>>, currentPath: P) => {
     nodeKey: Extract<keyof C, string>;
-    pageSchema: import("./types.ts").ZodSchemaLike | undefined;
+    pageSchema: import("./types.ts").SchemaForPath<C, P>;
     pageData: Partial<((C[keyof C] extends infer T ? T extends C[keyof C] ? T extends {
         pageSchema: infer S;
-    } ? S extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K in keyof S]: S[K] extends infer T_1 ? T_1 extends S[K] ? T_1 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_1 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_2 in keyof T_1]: T_1[K_2] extends infer T_2 ? T_2 extends T_1[K_2] ? T_2 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_2 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_2]: T_2[K_3] extends infer T_3 ? T_3 extends T_2[K_3] ? T_3 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_3 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_3]: T_3[K_4] extends infer T_4 ? T_4 extends T_3[K_4] ? T_4 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_4 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_4]: T_4[K_5] extends infer T_5 ? T_5 extends T_4[K_5] ? T_5 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_5 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_5]: T_5[K_6] extends infer T_6 ? T_6 extends T_5[K_6] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_6]: T_6[K_7] extends infer T_7 ? T_7 extends T_6[K_7] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_7]: T_7[K_8] extends infer T_8 ? T_8 extends T_7[K_8] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_8]: T_8[K_9] extends infer T_9 ? T_9 extends T_8[K_9] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_9]: T_9[K_10] extends infer T_10 ? T_10 extends T_9[K_10] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_10]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : T extends {
+    } ? S extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K in keyof S]: S[K] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never : T extends {
         arraySummary: {
             name: infer N extends string;
-            schema: infer S_1;
+            schema: infer S_1 extends {
+                parse(data: unknown): unknown[];
+                safeParse(data: unknown): {
+                    success: false;
+                    error: unknown;
+                } | {
+                    success: true;
+                    data: unknown[];
+                };
+            };
         };
-    } ? { [Key in N]: S_1 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S_1 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_1 in keyof S_1]: S_1[K_1] extends infer T_1 ? T_1 extends S_1[K_1] ? T_1 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_1 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_1]: T_1[K_3] extends infer T_2 ? T_2 extends T_1[K_3] ? T_2 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_2 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_2]: T_2[K_4] extends infer T_3 ? T_3 extends T_2[K_4] ? T_3 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_3 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_3]: T_3[K_5] extends infer T_4 ? T_4 extends T_3[K_5] ? T_4 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_4 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_4]: T_4[K_6] extends infer T_5 ? T_5 extends T_4[K_6] ? T_5 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_5 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_5]: T_5[K_7] extends infer T_6 ? T_6 extends T_5[K_7] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_6]: T_6[K_8] extends infer T_7 ? T_7 extends T_6[K_8] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_7]: T_7[K_9] extends infer T_8 ? T_8 extends T_7[K_9] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_8]: T_8[K_10] extends infer T_9 ? T_9 extends T_8[K_10] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_9]: T_9[K_11] extends infer T_10 ? T_10 extends T_9[K_11] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_12 in keyof T_10]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never; } : {} : never : never) extends infer T_1 ? T_1 extends (C[keyof C] extends infer T_2 ? T_2 extends C[keyof C] ? T_2 extends {
+    } ? { [Key in N]: S_1 extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S_1 extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K_1 in keyof S_1]: S_1[K_1] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never; } : {} : never : never) extends infer T_1 ? T_1 extends (C[keyof C] extends infer T_2 ? T_2 extends C[keyof C] ? T_2 extends {
         pageSchema: infer S;
-    } ? S extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K in keyof S]: S[K] extends infer T_3 ? T_3 extends S[K] ? T_3 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_3 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_2 in keyof T_3]: T_3[K_2] extends infer T_4 ? T_4 extends T_3[K_2] ? T_4 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_4 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_4]: T_4[K_3] extends infer T_5 ? T_5 extends T_4[K_3] ? T_5 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_5 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_5]: T_5[K_4] extends infer T_6 ? T_6 extends T_5[K_4] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_6]: T_6[K_5] extends infer T_7 ? T_7 extends T_6[K_5] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_7]: T_7[K_6] extends infer T_8 ? T_8 extends T_7[K_6] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_8]: T_8[K_7] extends infer T_9 ? T_9 extends T_8[K_7] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_9]: T_9[K_8] extends infer T_10 ? T_10 extends T_9[K_8] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_10]: T_10[K_9] extends infer T_11 ? T_11 extends T_10[K_9] ? T_11 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_11 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_11]: T_11[K_10] extends infer T_12 ? T_12 extends T_11[K_10] ? T_12 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_12 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_12]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : T_2 extends {
+    } ? S extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K in keyof S]: S[K] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never : T_2 extends {
         arraySummary: {
             name: infer N extends string;
-            schema: infer S_1;
+            schema: infer S_1 extends {
+                parse(data: unknown): unknown[];
+                safeParse(data: unknown): {
+                    success: false;
+                    error: unknown;
+                } | {
+                    success: true;
+                    data: unknown[];
+                };
+            };
         };
-    } ? { [Key in N]: S_1 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S_1 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_1 in keyof S_1]: S_1[K_1] extends infer T_3 ? T_3 extends S_1[K_1] ? T_3 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_3 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_3]: T_3[K_3] extends infer T_4 ? T_4 extends T_3[K_3] ? T_4 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_4 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_4]: T_4[K_4] extends infer T_5 ? T_5 extends T_4[K_4] ? T_5 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_5 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_5]: T_5[K_5] extends infer T_6 ? T_6 extends T_5[K_5] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_6]: T_6[K_6] extends infer T_7 ? T_7 extends T_6[K_6] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_7]: T_7[K_7] extends infer T_8 ? T_8 extends T_7[K_7] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_8]: T_8[K_8] extends infer T_9 ? T_9 extends T_8[K_8] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_9]: T_9[K_9] extends infer T_10 ? T_10 extends T_9[K_9] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_10]: T_10[K_10] extends infer T_11 ? T_11 extends T_10[K_10] ? T_11 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_11 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_11]: T_11[K_11] extends infer T_12 ? T_12 extends T_11[K_11] ? T_12 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_12 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_12 in keyof T_12]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never; } : {} : never : never) ? T_1 extends any ? (k: T_1) => void : never : never : never) extends (k: infer I) => void ? I : never>;
+    } ? { [Key in N]: S_1 extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S_1 extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K_1 in keyof S_1]: S_1[K_1] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never; } : {} : never : never) ? T_1 extends any ? (k: T_1) => void : never : never : never) extends (k: infer I) => void ? I : never>;
     fieldNames: string[];
     initialPath: string;
     arrayInfo: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
@@ -30,19 +164,153 @@ export declare const createFlowSession: <C extends PageConfigMap>(compiledFlow: 
     statusTree: Record<string, import("./statusTree.ts").StatusNode>;
     prunedUserData: Partial<((C[keyof C] extends infer T_3 ? T_3 extends C[keyof C] ? T_3 extends {
         pageSchema: infer S;
-    } ? S extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K in keyof S]: S[K] extends infer T_4 ? T_4 extends S[K] ? T_4 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_4 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_2 in keyof T_4]: T_4[K_2] extends infer T_5 ? T_5 extends T_4[K_2] ? T_5 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_5 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_5]: T_5[K_3] extends infer T_6 ? T_6 extends T_5[K_3] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_6]: T_6[K_4] extends infer T_7 ? T_7 extends T_6[K_4] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_7]: T_7[K_5] extends infer T_8 ? T_8 extends T_7[K_5] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_8]: T_8[K_6] extends infer T_9 ? T_9 extends T_8[K_6] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_9]: T_9[K_7] extends infer T_10 ? T_10 extends T_9[K_7] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_10]: T_10[K_8] extends infer T_11 ? T_11 extends T_10[K_8] ? T_11 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_11 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_11]: T_11[K_9] extends infer T_12 ? T_12 extends T_11[K_9] ? T_12 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_12 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_12]: T_12[K_10] extends infer T_13 ? T_13 extends T_12[K_10] ? T_13 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_13 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_13]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : T_3 extends {
+    } ? S extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K in keyof S]: S[K] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never : T_3 extends {
         arraySummary: {
             name: infer N extends string;
-            schema: infer S_1;
+            schema: infer S_1 extends {
+                parse(data: unknown): unknown[];
+                safeParse(data: unknown): {
+                    success: false;
+                    error: unknown;
+                } | {
+                    success: true;
+                    data: unknown[];
+                };
+            };
         };
-    } ? { [Key in N]: S_1 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S_1 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_1 in keyof S_1]: S_1[K_1] extends infer T_4 ? T_4 extends S_1[K_1] ? T_4 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_4 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_4]: T_4[K_3] extends infer T_5 ? T_5 extends T_4[K_3] ? T_5 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_5 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_5]: T_5[K_4] extends infer T_6 ? T_6 extends T_5[K_4] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_6]: T_6[K_5] extends infer T_7 ? T_7 extends T_6[K_5] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_7]: T_7[K_6] extends infer T_8 ? T_8 extends T_7[K_6] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_8]: T_8[K_7] extends infer T_9 ? T_9 extends T_8[K_7] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_9]: T_9[K_8] extends infer T_10 ? T_10 extends T_9[K_8] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_10]: T_10[K_9] extends infer T_11 ? T_11 extends T_10[K_9] ? T_11 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_11 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_11]: T_11[K_10] extends infer T_12 ? T_12 extends T_11[K_10] ? T_12 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_12 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_12]: T_12[K_11] extends infer T_13 ? T_13 extends T_12[K_11] ? T_13 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_13 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_12 in keyof T_13]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never; } : {} : never : never) extends infer T_4 ? T_4 extends (C[keyof C] extends infer T_5 ? T_5 extends C[keyof C] ? T_5 extends {
+    } ? { [Key in N]: S_1 extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S_1 extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K_1 in keyof S_1]: S_1[K_1] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never; } : {} : never : never) extends infer T_4 ? T_4 extends (C[keyof C] extends infer T_5 ? T_5 extends C[keyof C] ? T_5 extends {
         pageSchema: infer S;
-    } ? S extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K in keyof S]: S[K] extends infer T_6 ? T_6 extends S[K] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_2 in keyof T_6]: T_6[K_2] extends infer T_7 ? T_7 extends T_6[K_2] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_7]: T_7[K_3] extends infer T_8 ? T_8 extends T_7[K_3] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_8]: T_8[K_4] extends infer T_9 ? T_9 extends T_8[K_4] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_9]: T_9[K_5] extends infer T_10 ? T_10 extends T_9[K_5] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_10]: T_10[K_6] extends infer T_11 ? T_11 extends T_10[K_6] ? T_11 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_11 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_11]: T_11[K_7] extends infer T_12 ? T_12 extends T_11[K_7] ? T_12 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_12 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_12]: T_12[K_8] extends infer T_13 ? T_13 extends T_12[K_8] ? T_13 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_13 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_13]: T_13[K_9] extends infer T_14 ? T_14 extends T_13[K_9] ? T_14 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_14 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_14]: T_14[K_10] extends infer T_15 ? T_15 extends T_14[K_10] ? T_15 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_15 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_15]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : T_5 extends {
+    } ? S extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K in keyof S]: S[K] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never : T_5 extends {
         arraySummary: {
             name: infer N extends string;
-            schema: infer S_1;
+            schema: infer S_1 extends {
+                parse(data: unknown): unknown[];
+                safeParse(data: unknown): {
+                    success: false;
+                    error: unknown;
+                } | {
+                    success: true;
+                    data: unknown[];
+                };
+            };
         };
-    } ? { [Key in N]: S_1 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : S_1 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_1 in keyof S_1]: S_1[K_1] extends infer T_6 ? T_6 extends S_1[K_1] ? T_6 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_6 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_3 in keyof T_6]: T_6[K_3] extends infer T_7 ? T_7 extends T_6[K_3] ? T_7 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_7 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_4 in keyof T_7]: T_7[K_4] extends infer T_8 ? T_8 extends T_7[K_4] ? T_8 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_8 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_5 in keyof T_8]: T_8[K_5] extends infer T_9 ? T_9 extends T_8[K_5] ? T_9 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_9 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_6 in keyof T_9]: T_9[K_6] extends infer T_10 ? T_10 extends T_9[K_6] ? T_10 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_10 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_7 in keyof T_10]: T_10[K_7] extends infer T_11 ? T_11 extends T_10[K_7] ? T_11 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_11 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_8 in keyof T_11]: T_11[K_8] extends infer T_12 ? T_12 extends T_11[K_8] ? T_12 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_12 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_9 in keyof T_12]: T_12[K_9] extends infer T_13 ? T_13 extends T_12[K_9] ? T_13 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_13 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_10 in keyof T_13]: T_13[K_10] extends infer T_14 ? T_14 extends T_13[K_10] ? T_14 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_14 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_11 in keyof T_14]: T_14[K_11] extends infer T_15 ? T_15 extends T_14[K_11] ? T_15 extends import("./types.ts").ZodSchemaLike<infer Output, unknown> ? Output : T_15 extends Readonly<Record<string, import("./types.ts").ZodSchemaLike<unknown, unknown>>> ? { [K_12 in keyof T_15]: /*elided*/ any; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never : never : never; } : never; } : {} : never : never) ? T_4 extends any ? (k: T_4) => void : never : never : never) extends (k: infer I) => void ? I : never>;
+    } ? { [Key in N]: S_1 extends {
+        parse(data: unknown): infer Output;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output;
+        };
+    } ? Output : S_1 extends {
+        [x: string]: {
+            parse(data: unknown): unknown;
+            safeParse(data: unknown): {
+                success: false;
+                error: unknown;
+            } | {
+                success: true;
+                data: unknown;
+            };
+        };
+    } ? { [K_1 in keyof S_1]: S_1[K_1] extends {
+        parse(data: unknown): infer Output_1;
+        safeParse(data: unknown): {
+            success: false;
+            error: unknown;
+        } | {
+            success: true;
+            data: infer Output_1;
+        };
+    } ? Output_1 : never; } : never; } : {} : never : never) ? T_4 extends any ? (k: T_4) => void : never : never : never) extends (k: infer I) => void ? I : never>;
     isReachable: (targetPath: string) => boolean;
     prevPath: string | undefined;
     nextPath: (newUserData?: InferredUserData<C>) => string | undefined;
@@ -52,4 +320,3 @@ export declare const createFlowSession: <C extends PageConfigMap>(compiledFlow: 
         progress: number;
     };
 };
-export type FlowSession<C extends PageConfigMap> = ReturnType<typeof createFlowSession<C>>;
