@@ -5,15 +5,21 @@
 
 Library for configuring and running complex multi-page forms in a type-safe way. Its only dependency is zod 4+ for validation and type inference.
 
-This library handles configuration, logical transitions, progress, reachability, done state.
+This library handles: configuration, logical transitions, progress, reachability, done state.
 
-This library does not provide rendering, state management or runtime validation.
+This library does not provide: rendering, state management, runtime validation.
 
 ## Concepts
 
-A multi-page form is fundamentally a [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph), with each page representing a node and transitions forming the edges between them. A node might have multiple edges that represent branching conditions.
+A multi-page form is abstracted as a [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph):
 
 ![Example of an directed acyclic graph with multiple nodes and connecting edges](https://upload.wikimedia.org/wikipedia/commons/f/fe/Tred-G.svg).
+
+- Each **node** represents a single page
+- A node can have 0 or more **transitions**, connecting it to other nodes
+- Each transition has exactly one **source** and one **target** and may depend on a condition
+- There is one **entry node** (no incoming transition) and one or more **exit node** (not outgoing transition)
+- There are no loops in the diagram
 
 ## Usage
 
@@ -24,11 +30,11 @@ The library API is split in two:
 
 ### Configuring a flow
 
-A form is configured in two collections, _pages_ (aka nodes) and _transitions_ (aka edges), plus a starting node.
+A form is configured in two collections, _pages_ and _transitions_, plus the starting node.
 
 #### Pages
 
-Each page needs to at least configure a `path`, and optionally a `pageSchema` (exposed at runtime and used to infer user data types). Each page is indexed by a `pageKey`, which is used to refer to that page.
+Each page needs to configure a `path`, and optionally a `pageSchema` (accessible at runtime and used to infer user data types). Each page is indexed by a `pageKey`, which is used to refer to that page throughout the configuration.
 
 ```ts
 const pages = {
@@ -41,11 +47,19 @@ const pages = {
 
 #### Transitions
 
-A transition needs to be specified for each page. It can either be:
+A transition needs to be specified for each page.
 
-- **null**: No following node
+##### Transition types
+
+- **null**: No target (makes this node an final node)
 - **primitive**: Always pointing to one other node
-- **conditional**: An array of conditions and targets. They are evaluated top-to-bottom, resolving to the first target with a _true_ guard.
+- **conditional**: An array of conditions and targets. They are evaluated top-to-bottom, resolving to the first target where the guard returns _true_.
+
+##### Guards
+
+A guard is a small function used in conditional transitions. It receives the data the machine was initialized with and returns a boolean, to indicate whether its corresponding target should be the next destination. The type of userData is fully inferred by the `pageSchemas` defined in `pages`.
+
+##### Example
 
 ```ts
 const transitions = {
@@ -57,9 +71,9 @@ const transitions = {
 
 #### compileFlowConfig
 
-This configuration happens on calling `compileFlowConfig` which provides type safety, validity checks and pre-computation.
+All this configuration happens on calling `compileFlowConfig`, which provides type safety, validity checks and pre-computation.
 
-In the following example, `key1` always points to `key2`, `key2` transitions to `key3a` if the user input is longer than 5 characters and to `key3b` otherwise, and `key3a` & `key3b` both end the flow.
+In the following example, `key1` always points to `key2`, `key2` transitions to `key3a` if the user input is longer than 5 characters and to `key3b` otherwise, and `key3a` & `key3b` both end the flow:
 
 ```ts
 import { compileFlowConfig } from "form-graph-engine";
@@ -104,11 +118,12 @@ const currentPath = getCurrentPath();
 const session = createFlowSession(compiledFlow, userData, currentPath);
 ```
 
-`createFlowSession` throws if `currentPath` does not match any configured page.
+> [!NOTE]
+> `createFlowSession` throws an error if `currentPath` does not match any configured page.
 
 #### Navigation
 
-`session.nextPath(newUserData?)` returns the path of the next node, evaluating transitions against the current user data. Optionally accepts `newUserData` that is merged in for the transition evaluation - useful when you want to resolve the next step before persisting the just-entered values.
+`session.nextPath(newUserData?)` returns the path of the next node, evaluating transitions against the current user data. Optionally accepts `newUserData`, which is merged in for the transition evaluation.
 
 `session.prevPath` returns the path of the previous node, or `undefined` at the start of the flow.
 
@@ -118,41 +133,42 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 #### Page data
 
-`session.pageSchema` is the Zod schema for the current page (as configured in `pages`), or `undefined` for schema-less pages.
-
-`session.fieldNames` is the list of field names defined by the current page's schema.
-
-`session.pageData` is the subset of user data for the current page's fields.
-
-`session.prunedUserData` is the full user data with unreachable-page fields removed. Use this as the source of truth for processing data as it strips out values from branches that aren't relevant anymore.
+- `session.pageSchema` is the Zod schema for the current page as configured in `pages` (`undefined` for schema-less pages).
+- `session.fieldNames` is the list of field names defined by the current page's schema.
+- `session.pageData` is the subset of user data for the current page's fields. Useful for pre-filling fields on reloads.
+- `session.prunedUserData` is the user data with data of unreachable (and therefore irrelevant) pages removed. Use this as the source of truth for further processing.
 
 #### Status
 
 `session.isComplete` is `true` when the active BFS path has reached a terminal node (a page with a `null` transition).
 
-`session.progress` is a `{ current, total }` object representing how far along the current path the active node is, based on the pre-computed graph structure.
+`session.progress` is a `{ current: number, total: number }` object representing how far along the current path the active node is, based on the pre-computed graph structure. Useful for progress bars.
 
 `session.statusTree` is a nested tree of `{ isDone, isReachable }` status nodes, keyed by path prefixes. Useful for rendering section-level progress in a multi-part form (e.g. a sidebar showing which sections are complete).
 
 For a flow with pages at `/personal/name`, `/personal/address`, and `/payment/card`, the tree groups by prefix:
 
 ```ts
-{
-  "/personal": { isDone: true,  isReachable: true,
+const statusTree = {
+  "/personal": {
+    isDone: true,
+    isReachable: true,
     children: {
-      "/name":    { isDone: true,  isReachable: true },
-      "/address": { isDone: true,  isReachable: true },
-    }
+      "/name": { isDone: true, isReachable: true },
+      "/address": { isDone: true, isReachable: true },
+    },
   },
-  "/payment":  { isDone: false, isReachable: true,
+  "/payment": {
+    isDone: false,
+    isReachable: true,
     children: {
-      "/card":    { isDone: false, isReachable: true },
-    }
+      "/card": { isDone: false, isReachable: true },
+    },
   },
-}
+};
 ```
 
-`session.isReachable(path)` returns `true` if the given path is reachable from the initial step with the current user data.
+`session.isReachable(path)` returns `true` if the given path is reachable with the current user data. This is useful for implementing a funnel with auto-redirect (avoiding deeplinks )
 
 #### Other
 
