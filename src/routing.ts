@@ -77,32 +77,9 @@ export const evaluateAllBranches = <FlowKey, UserData>(
   return [];
 };
 
-const isPageCompleted = <C extends PageConfigMap>(
-  compiledFlow: CompiledFlow<C>,
-  userData: InferredUserData<C>,
-  nodeKey: NodeKey<C>,
-): boolean => {
-  const nodePath = compiledFlow.getPathFromNodeKey(nodeKey);
-  if (!nodePath) return false;
-
-  const fieldNames = compiledFlow.getFieldNames(nodePath);
-  const fieldNameSet = new Set(fieldNames.map(String));
-  // Schema-less pages stay visitable. Stateless session cannot infer prior visits.
-  if (fieldNames.length === 0) return false;
-
-  const schema = compiledFlow.getSchema(nodePath);
-  if (!schema) return false;
-
-  const pageData = Object.fromEntries(
-    Object.entries(userData).filter(([key]) => fieldNameSet.has(key)),
-  );
-
-  return schema.safeParse(pageData).success;
-};
-
 export const findNextIncompleteNode = <C extends PageConfigMap>(
   compiledFlow: CompiledFlow<C>,
-  guardData: InferredUserData<C> & { pageData: { arrayIndexes: number[] } },
+  guardData: InferredUserData<C> & { pageData?: { arrayIndexes: number[] } },
   currentNodeKey: NodeKey<C>,
 ): NodeKey<C> | null => {
   const getNextNode = (
@@ -117,25 +94,28 @@ export const findNextIncompleteNode = <C extends PageConfigMap>(
   const visited = new Set<NodeKey<C>>();
   let current: NodeKey<C> | null = getNextNode(
     currentNodeKey,
-    guardData.pageData,
+    guardData.pageData ?? { arrayIndexes: [] },
   );
   let lastNode: NodeKey<C> | null = null;
-  let lastIncompleteNode: NodeKey<C> | null = null;
+  let earliestSchemaLessBeforeIncomplete: NodeKey<C> | null = null;
 
   while (current) {
     if (visited.has(current)) break;
     visited.add(current);
     lastNode = current;
 
-    const nodePath = compiledFlow.getPathFromNodeKey(current);
-    const hasFieldSchema =
-      nodePath != null && compiledFlow.getFieldNames(nodePath).length > 0;
-    if (hasFieldSchema && !isPageCompleted(compiledFlow, guardData, current)) {
-      lastIncompleteNode = current;
+    const pageSchema = compiledFlow.getSchemaFromNodeKey(current);
+
+    if (pageSchema && pageSchema.safeParse(guardData).success) {
+      earliestSchemaLessBeforeIncomplete = null;
+    } else if (pageSchema) {
+      return earliestSchemaLessBeforeIncomplete ?? current;
+    } else if (!pageSchema && !earliestSchemaLessBeforeIncomplete) {
+      earliestSchemaLessBeforeIncomplete = current;
     }
 
     current = getNextNode(current, { arrayIndexes: [] });
   }
 
-  return lastIncompleteNode ?? lastNode;
+  return lastNode;
 };

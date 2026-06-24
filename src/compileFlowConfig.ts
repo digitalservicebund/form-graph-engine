@@ -56,6 +56,10 @@ export const compileFlowConfig = <C extends PageConfigMap>({
     return getPageByNodeKey(nodeKey).path;
   };
 
+  function getSchemaFromNodeKey(nodeKey: NodeKey<C>) {
+    return pageSchemaInfoCache[nodeKey]?.compiledSchema;
+  }
+
   function getSchema<P extends string>(path: P): SchemaForPath<C, P>;
   function getSchema(path: string): SchemaForPath<C, string>;
   function getSchema(path: string) {
@@ -91,6 +95,7 @@ export const compileFlowConfig = <C extends PageConfigMap>({
       return nodeKey ? arrayInfoCache[nodeKey] : undefined;
     },
     getSchema,
+    getSchemaFromNodeKey,
     getFieldNames,
     getFieldNamesByNodeKey,
     arrayInfoCache,

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- tests: comprehensive unit tests for `findNextIncompleteNode` covering first incomplete page, schema-less predecessors, and fallback behaviors
+
+### Changed
+
+- `findNextIncompleteNode`: refactored logic to return first incomplete schema page, or earliest schema-less page preceding it
+- `findNextIncompleteNode`: simplified conditional structure to avoid negation-based branching
+
 ## [0.0.1] - 2026-06-23
 
 ### Added

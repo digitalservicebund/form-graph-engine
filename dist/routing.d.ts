@@ -18,7 +18,7 @@ export declare const evaluateAllBranches: <FlowKey, UserData>(route: TransitionC
     excludeArrayTransitions?: boolean;
 }) => FlowKey[];
 export declare const findNextIncompleteNode: <C extends PageConfigMap>(compiledFlow: CompiledFlow<C>, guardData: InferredUserData<C> & {
-    pageData: {
+    pageData?: {
         arrayIndexes: number[];
     };
 }, currentNodeKey: NodeKey<C>) => NodeKey<C> | null;

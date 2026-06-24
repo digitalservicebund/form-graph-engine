@@ -3,8 +3,11 @@ import {
   evaluateRoute,
   extractEdges,
   evaluateAllBranches,
+  findNextIncompleteNode,
 } from "../src/routing.ts";
 import { strictEqual } from "node:assert";
+import { compileFlowConfig } from "../src/compileFlowConfig.ts";
+import z from "zod";
 
 const noData = { pageData: { arrayIndexes: [] } };
 
@@ -160,5 +163,76 @@ describe("evaluateAllBranches", () => {
     const result = evaluateAllBranches(route, noData);
     strictEqual(result.length, 1);
     strictEqual(result[0], "a");
+  });
+});
+
+describe("findNextIncompleteNode", () => {
+  const flow = compileFlowConfig({
+    pages: {
+      start: { path: "/start" },
+      a: { path: "/a", pageSchema: { requiredA: z.string() } },
+      b: { path: "/b", pageSchema: { requiredB: z.string() } },
+      done: { path: "/done" },
+    },
+    initialStep: "start",
+    transitions: {
+      start: "a",
+      a: "b",
+      b: "done",
+      done: null,
+    },
+  });
+
+  it("returns first incomplete schema page regardless of later fields", () => {
+    const withEmpty = findNextIncompleteNode(flow, {}, "start");
+    strictEqual(withEmpty, "a");
+
+    const withLaterData = findNextIncompleteNode(
+      flow,
+      { requiredB: "ok" },
+      "start",
+    );
+    strictEqual(withLaterData, "a");
+  });
+
+  it("returns the deepest reachable node when all form pages are complete", () => {
+    const nextIncomplete = findNextIncompleteNode(
+      flow,
+      {
+        requiredA: "ok",
+        requiredB: "ok",
+      },
+      "start",
+    );
+
+    strictEqual(nextIncomplete, "done");
+  });
+
+  it("returns the earliest schema-less page when it precedes the first incomplete schema page", () => {
+    const flowWithInfoPages = compileFlowConfig({
+      pages: {
+        start: { path: "/start" },
+        infoOne: { path: "/info-one" },
+        infoTwo: { path: "/info-two" },
+        form: { path: "/form", pageSchema: { requiredField: z.string() } },
+        done: { path: "/done" },
+      },
+      initialStep: "start",
+      transitions: {
+        start: "infoOne",
+        infoOne: "infoTwo",
+        infoTwo: "form",
+        form: "done",
+        done: null,
+      },
+    });
+
+    const nextIncomplete = findNextIncompleteNode(
+      flowWithInfoPages,
+      {},
+      "start",
+    );
+
+    strictEqual(nextIncomplete, "infoOne");
   });
 });

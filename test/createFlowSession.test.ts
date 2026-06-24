@@ -287,25 +287,6 @@ describe("createFlowSession", () => {
   });
 
   describe("nextIncomplete", () => {
-    it("returns the deeper incomplete form page after schema-less pages", () => {
-      const withInfoPageFlow = compileFlowConfig({
-        pages: {
-          start: { path: "/start" },
-          info: { path: "/info" },
-          form: { path: "/form", pageSchema: { done: z.boolean() } },
-        },
-        initialStep: "start",
-        transitions: {
-          start: "info",
-          info: "form",
-          form: null,
-        },
-      });
-
-      const session = createFlowSession(withInfoPageFlow, {}, "/start");
-      deepStrictEqual(session.nextIncomplete(), "/form");
-    });
-
     it("skips schema-less page when the following page is already complete", () => {
       const withInfoPageFlow = compileFlowConfig({
         pages: {
@@ -329,48 +310,6 @@ describe("createFlowSession", () => {
         "/start",
       );
       deepStrictEqual(session.nextIncomplete(), "/review");
-    });
-
-    it("walks across multiple schema-less pages and returns the deepest incomplete form page", () => {
-      const multiInfoFlow = compileFlowConfig({
-        pages: {
-          start: { path: "/start" },
-          infoOne: { path: "/info-1" },
-          infoTwo: { path: "/info-2" },
-          profile: { path: "/profile", pageSchema: { name: z.string() } },
-        },
-        initialStep: "start",
-        transitions: {
-          start: "infoOne",
-          infoOne: "infoTwo",
-          infoTwo: "profile",
-          profile: null,
-        },
-      });
-
-      const session = createFlowSession(multiInfoFlow, {}, "/start");
-      deepStrictEqual(session.nextIncomplete(), "/profile");
-    });
-
-    it("returns the last reachable node when no incomplete form page exists", () => {
-      const allDoneFlow = compileFlowConfig({
-        pages: {
-          start: { path: "/start" },
-          info: { path: "/info" },
-          form: { path: "/form", pageSchema: { done: z.boolean() } },
-          done: { path: "/done" },
-        },
-        initialStep: "start",
-        transitions: {
-          start: "info",
-          info: "form",
-          form: "done",
-          done: null,
-        },
-      });
-
-      const session = createFlowSession(allDoneFlow, { done: true }, "/start");
-      deepStrictEqual(session.nextIncomplete(), "/done");
     });
 
     it("returns undefined at the terminal step", () => {
