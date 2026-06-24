@@ -19,7 +19,7 @@ A multi-page form is abstracted as a [directed acyclic graph](https://en.wikiped
 - A node can have 0 or more **transitions**, connecting it to other nodes
 - Each transition has exactly one **source** and one **target** and may depend on a condition
 - There is one **entry node** (no incoming transition) and one or more **exit nodes** (no outgoing transitions)
-- There are no loops in the diagram
+- There are no loops in the graph
 
 ## Usage
 
