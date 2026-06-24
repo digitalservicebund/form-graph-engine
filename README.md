@@ -3,7 +3,7 @@
 > [!WARNING]
 > This library is under development and might change without notice.
 
-Library for configuring and running complex multi-page forms in a type-safe way. Its only dependency is zod 4+ for validation and type inference.
+Library for configuring and running complex multi-page forms in a type-safe way. Its only dependency is [Zod](https://zod.dev/) 4+ for validation and type inference.
 
 This library handles: configuration, logical transitions, progress, reachability, done state.
 
@@ -18,7 +18,7 @@ A multi-page form is abstracted as a [directed acyclic graph](https://en.wikiped
 - Each **node** represents a single page
 - A node can have 0 or more **transitions**, connecting it to other nodes
 - Each transition has exactly one **source** and one **target** and may depend on a condition
-- There is one **entry node** (no incoming transition) and one or more **exit node** (not outgoing transition)
+- There is one **entry node** (no incoming transition) and one or more **exit nodes** (no outgoing transitions)
 - There are no loops in the diagram
 
 ## Usage
@@ -140,7 +140,7 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 #### Status
 
-`session.isComplete` is `true` when the active BFS path has reached a terminal node (a page with a `null` transition).
+`session.isComplete` is `true` when the active [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) path has reached a terminal node (a page with a `null` transition).
 
 `session.progress` is a `{ current: number, total: number }` object representing how far along the current path the active node is, based on the pre-computed graph structure. Useful for progress bars.
 
@@ -174,7 +174,7 @@ const statusTree = {
 
 `session.nodeKey` is the key of the current page in the `pages` config.
 
-`session.path` is the ordered list of node keys on the active BFS path through the flow.
+`session.path` is the ordered list of node keys on the active Breadth-first search path through the flow.
 
 #### Array pages
 
