@@ -77,6 +77,16 @@ export const evaluateAllBranches = <FlowKey, UserData>(
   return [];
 };
 
+/**
+ * Finds the next incomplete node in a flow, navigating through pages in order.
+ *
+ * Traverses the flow graph from the current node and returns:
+ * 1. The first incomplete schema page encountered
+ * 2. If schema-less (non-input) pages precede an incomplete page, returns the earliest one
+ * 3. If the flow ends with schema-less pages, returns the earliest one
+ *
+ * This ensures users navigate through information/display pages rather than skipping them.
+ */
 export const findNextIncompleteNode = <C extends PageConfigMap>(
   compiledFlow: CompiledFlow<C>,
   guardData: InferredUserData<C> & { pageData?: { arrayIndexes: number[] } },
@@ -97,7 +107,7 @@ export const findNextIncompleteNode = <C extends PageConfigMap>(
     guardData.pageData ?? { arrayIndexes: [] },
   );
   let lastNode: NodeKey<C> | null = null;
-  let earliestSchemaLessBeforeIncomplete: NodeKey<C> | null = null;
+  let earliestSchemaLessNode: NodeKey<C> | null = null;
 
   while (current) {
     if (visited.has(current)) break;
@@ -107,15 +117,19 @@ export const findNextIncompleteNode = <C extends PageConfigMap>(
     const pageSchema = compiledFlow.getSchemaFromNodeKey(current);
 
     if (pageSchema && pageSchema.safeParse(guardData).success) {
-      earliestSchemaLessBeforeIncomplete = null;
+      // Completed form page: reset tracking
+      earliestSchemaLessNode = null;
     } else if (pageSchema) {
-      return earliestSchemaLessBeforeIncomplete ?? current;
-    } else if (!pageSchema && !earliestSchemaLessBeforeIncomplete) {
-      earliestSchemaLessBeforeIncomplete = current;
+      // Incomplete form page: return earliest schema-less before it, or this incomplete page
+      return earliestSchemaLessNode ?? current;
+    } else if (!pageSchema && !earliestSchemaLessNode) {
+      // Schema-less page: track the earliest one
+      earliestSchemaLessNode = current;
     }
 
     current = getNextNode(current, { arrayIndexes: [] });
   }
 
-  return lastNode;
+  // If flow ends with schema-less pages, return the earliest one
+  return earliestSchemaLessNode ?? lastNode;
 };

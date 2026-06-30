@@ -235,4 +235,31 @@ describe("findNextIncompleteNode", () => {
 
     strictEqual(nextIncomplete, "infoOne");
   });
+
+  it("returns schema-less pages at flow end instead of skipping them", () => {
+    const flowEndingWithInfo = compileFlowConfig({
+      pages: {
+        form: { path: "/form", pageSchema: { requiredField: z.string() } },
+        infoOne: { path: "/info-one" },
+        infoTwo: { path: "/info-two" },
+      },
+      initialStep: "form",
+      transitions: {
+        form: "infoOne",
+        infoOne: "infoTwo",
+        infoTwo: null,
+      },
+    });
+
+    const userData = { requiredField: "ok" };
+
+    strictEqual(
+      findNextIncompleteNode(flowEndingWithInfo, userData, "form"),
+      "infoOne",
+    );
+    strictEqual(
+      findNextIncompleteNode(flowEndingWithInfo, userData, "infoOne"),
+      "infoTwo",
+    );
+  });
 });
