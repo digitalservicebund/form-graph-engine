@@ -30,7 +30,7 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
         fieldNames,
         initialPath: compiledFlow.initialPath,
         arrayInfo: compiledFlow.getArrayInfo(normalizedPath),
-        path: simulation.path,
+        path: simulation.path.map((nodeKey) => compiledFlow.getPathFromNodeKey(nodeKey)),
         isComplete: simulation.isComplete,
         statusTree: buildStatusTree(compiledFlow.pages, simulation),
         prunedUserData,

@@ -1,8 +1,8 @@
 import type { NodeKey, PageConfigMap, TransitionConfigMap, InferredUserData } from "./types.ts";
 import type { PageData } from "./pageDataSchema.ts";
-type SimulationResult = {
-    path: string[];
-    reachableSet: Set<string>;
+type SimulationResult<C extends PageConfigMap> = {
+    path: NodeKey<C>[];
+    reachableSet: Set<NodeKey<C>>;
     isComplete: boolean;
 };
 /**
@@ -11,7 +11,7 @@ type SimulationResult = {
  */
 export declare const simulate: <C extends PageConfigMap>(router: TransitionConfigMap<C>, initialStep: NodeKey<C>, userData: InferredUserData<C>, arrayInfoCache?: Partial<Record<NodeKey<C>, {
     name: string;
-}>>) => SimulationResult & {
+}>>) => SimulationResult<C> & {
     parentMap: Map<NodeKey<C>, NodeKey<C>>;
     visitedContexts: Array<{
         key: NodeKey<C>;
