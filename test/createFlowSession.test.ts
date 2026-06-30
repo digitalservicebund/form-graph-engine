@@ -402,9 +402,9 @@ describe("createFlowSession", () => {
   });
 
   describe("path", () => {
-    it("contains the simulation path from initial to terminal step", () => {
+    it("contains the simulation path from initial to terminal step as full paths", () => {
       const session = createFlowSession(flow, noData, "/start");
-      deepStrictEqual(session.path, ["start", "middle", "end"]);
+      deepStrictEqual(session.path, ["/start", "/middle", "/end"]);
     });
   });
 
