@@ -17,6 +17,16 @@ export declare const extractEdges: <FlowKey, UserData>(route?: TransitionConfig<
 export declare const evaluateAllBranches: <FlowKey, UserData>(route: TransitionConfig<FlowKey, UserData> | undefined, data: UserData, options?: {
     excludeArrayTransitions?: boolean;
 }) => FlowKey[];
+/**
+ * Finds the next incomplete node in a flow, navigating through pages in order.
+ *
+ * Traverses the flow graph from the current node and returns:
+ * 1. The first incomplete schema page encountered
+ * 2. If schema-less (non-input) pages precede an incomplete page, returns the earliest one
+ * 3. If the flow ends with schema-less pages, returns the earliest one
+ *
+ * This ensures users navigate through information/display pages rather than skipping them.
+ */
 export declare const findNextIncompleteNode: <C extends PageConfigMap>(compiledFlow: CompiledFlow<C>, guardData: InferredUserData<C> & {
     pageData?: {
         arrayIndexes: number[];
