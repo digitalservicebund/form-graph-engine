@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- upgraded to pnpm@11.9.0, oxfmt@0.56.0, oxlint@1.71.0
+- upgraded to pnpm@11.9.0, oxfmt@0.56.0, oxlint@1.71.0, node@26.4.0
 - `findNextIncompleteNode`: returns earliest schema-less page at flow end (not last one); ensures all non-input pages are navigated in sequence
 
 ## [0.0.2] - 2026-06-24
