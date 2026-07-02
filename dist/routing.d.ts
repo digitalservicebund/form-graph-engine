@@ -14,9 +14,7 @@ export declare const extractEdges: <FlowKey, UserData>(route?: TransitionConfig<
  * Evaluates all reachable branches from a route definition.
  * Returns nodes that could be reached under any valid data state.
  */
-export declare const evaluateAllBranches: <FlowKey, UserData>(route: TransitionConfig<FlowKey, UserData> | undefined, data: UserData, options?: {
-    excludeArrayTransitions?: boolean;
-}) => FlowKey[];
+export declare const evaluateAllBranches: <FlowKey, UserData>(route: TransitionConfig<FlowKey, UserData> | undefined, data: UserData) => FlowKey[];
 /**
  * Finds the next incomplete node in a flow, navigating through pages in order.
  *

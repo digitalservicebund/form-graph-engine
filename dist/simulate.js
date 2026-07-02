@@ -60,13 +60,12 @@ export const simulate = (router, initialStep, userData, arrayInfoCache = {}) => 
         visitedContexts.push({ key: current, pageData, scopeData, arrayPath });
         const route = router[current];
         const itemData = { ...userData, pageData };
-        // Regular (non-array) branches — propagate the current scope unchanged.
-        for (const branch of evaluateAllBranches(route, itemData, {
-            excludeArrayTransitions: true,
-        })) {
-            if (!parentMap.has(branch))
-                parentMap.set(branch, current);
-            queue.push({ key: branch, pageData, scopeData, arrayPath });
+        // Regular (non-array) branch follows same first-match semantics as nextPath evaluation.
+        const regularNext = evaluateRoute(route, itemData, false);
+        if (regularNext) {
+            if (!parentMap.has(regularNext))
+                parentMap.set(regularNext, current);
+            queue.push({ key: regularNext, pageData, scopeData, arrayPath });
         }
         // Array branches: fan out once per item. scopeData is narrowed to the
         // specific array item so nested arrays can be counted and pruned correctly.

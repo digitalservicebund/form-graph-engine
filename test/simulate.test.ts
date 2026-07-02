@@ -84,7 +84,7 @@ describe("simulate", () => {
   });
 
   describe("BFS reachableSet", () => {
-    it("includes all nodes reachable under any guard outcome", () => {
+    it("uses ordered first-match semantics when multiple guards pass", () => {
       const flow = compileFlowConfig({
         pages: {
           start: {
@@ -109,6 +109,35 @@ describe("simulate", () => {
       });
       ok(reachableSet.has("start"));
       ok(reachableSet.has("conditional"));
+      ok(!reachableSet.has("always"));
+    });
+
+    it("falls through to later branches when earlier guards fail", () => {
+      const flow = compileFlowConfig({
+        pages: {
+          start: {
+            path: "/start",
+            pageSchema: { go: z.boolean().optional() },
+          },
+          conditional: { path: "/conditional" },
+          always: { path: "/always" },
+        },
+        initialStep: "start",
+        transitions: {
+          start: [
+            { target: "conditional", guard: (d) => d.go === true },
+            { target: "always" },
+          ],
+          conditional: null,
+          always: null,
+        },
+      });
+
+      const { reachableSet } = simulate(flow.transitions, flow.initialStep, {
+        go: false,
+      });
+      ok(reachableSet.has("start"));
+      ok(!reachableSet.has("conditional"));
       ok(reachableSet.has("always"));
     });
 

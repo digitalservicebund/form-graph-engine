@@ -725,5 +725,37 @@ describe("createFlowSession", () => {
         ],
       });
     });
+
+    it("prunes stale fields from later fallback branches when an earlier guard matches", () => {
+      const taxFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start" },
+          a: { path: "/a", pageSchema: { var1: z.string() } },
+          b: { path: "/b", pageSchema: { var2: z.string() } },
+          done: { path: "/done" },
+        },
+        initialStep: "start",
+        transitions: {
+          start: "a",
+          a: [
+            {
+              target: "done",
+              guard: (d) => d.var1 === "skip",
+            },
+            { target: "b", guard: () => true },
+          ],
+          b: "done",
+          done: null,
+        },
+      });
+
+      const session = createFlowSession(
+        taxFlow,
+        { var1: "skip", var2: "ist" },
+        "/a",
+      );
+
+      deepStrictEqual(session.prunedUserData, { var1: "skip" });
+    });
   });
 });
