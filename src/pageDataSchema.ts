@@ -1,11 +1,4 @@
-import { z } from "zod";
-
-export const pageDataSchema = z.object({
-  arrayIndexes: z.array(z.number()).optional(), // TODO: inject with path
-  // subflowDoneStates: z.record(z.string(), z.boolean()).optional(), // TODO: move into generic metadata
-});
-
-export type PageData = z.infer<typeof pageDataSchema>;
+export type PageData = { arrayIndexes?: number[] | undefined };
 
 /** Returns the first array index from pageData, if present. */
 export function firstArrayIndex(pageData?: PageData) {

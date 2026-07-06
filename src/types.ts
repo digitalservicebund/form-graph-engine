@@ -1,41 +1,34 @@
 import type { PageData } from "./pageDataSchema.ts";
+import type * as z4 from "zod/v4/core";
 
-type SafeParseResult<Output> =
+type ArraySchemaLike = z4.$ZodType<unknown[]>;
+
+type SchemaResult<Output> =
   | { success: true; data: Output }
   | { success: false; error: unknown };
 
-type SchemaLike<Output = unknown> = {
-  parse(data: unknown): Output;
-  safeParse(data: unknown): SafeParseResult<Output>;
+type RuntimeSchemaMethods<Output> = {
+  parse: (data: unknown) => Output;
+  safeParse: (data: unknown) => SchemaResult<Output>;
+  safeEncode?: (data: Output) => SchemaResult<Output>;
 };
 
-type PageShape = Record<string, SchemaLike>;
-
-type ShapeOutput<Shape extends Record<string, unknown>> = {
-  [K in keyof Shape]: Shape[K] extends SchemaLike<infer Output>
-    ? Output
-    : never;
-};
-
-export type ObjectSchemaLike<
-  Shape extends Record<string, unknown> = PageShape,
-> = SchemaLike<ShapeOutput<Shape>> & { shape: Shape };
-
-type ArraySchemaLike<Item = unknown> = SchemaLike<Item[]>;
+export type ObjectSchemaLike<Shape extends z4.$ZodShape = z4.$ZodShape> =
+  z4.$ZodObject<Shape> & RuntimeSchemaMethods<z4.output<z4.$ZodObject<Shape>>>;
 
 type InferSchema<S> =
-  S extends SchemaLike<infer Output>
+  S extends z4.$ZodType<infer Output>
     ? Output
-    : S extends PageShape
-      ? ShapeOutput<S>
+    : S extends z4.$ZodShape
+      ? z4.output<z4.$ZodObject<S>>
       : never;
 
-export type PageSchema = ObjectSchemaLike | PageShape;
+export type PageSchema = ObjectSchemaLike | z4.$ZodShape;
 
 type CompiledPageSchema<S extends PageSchema | undefined> =
   S extends ObjectSchemaLike
     ? S
-    : S extends PageShape
+    : S extends z4.$ZodShape
       ? ObjectSchemaLike<S>
       : undefined;
 
@@ -59,9 +52,9 @@ type NodeKeyForPath<C extends PageConfigMap, Path extends string> = {
 }[NodeKey<C>];
 
 type FieldNameForSchema<S> =
-  S extends ObjectSchemaLike<infer Shape>
+  S extends z4.$ZodObject<infer Shape>
     ? Extract<keyof Shape, string>
-    : S extends PageShape
+    : S extends z4.$ZodShape
       ? Extract<keyof S, string>
       : never;
 

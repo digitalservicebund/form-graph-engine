@@ -60,28 +60,25 @@ export const compileFlowConfig = <C extends PageConfigMap>({
     return pageSchemaInfoCache[nodeKey]?.compiledSchema;
   }
 
-  function getSchema<P extends string>(path: P): SchemaForPath<C, P>;
-  function getSchema(path: string): SchemaForPath<C, string>;
-  function getSchema(path: string) {
+  function getSchema<P extends string>(path: P): SchemaForPath<C, P> {
     const nodeKey = pathMap[path];
-    return nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined;
+    const schema = nodeKey
+      ? pageSchemaInfoCache[nodeKey]?.compiledSchema
+      : undefined;
+    return schema as SchemaForPath<C, P>;
   }
 
-  function getFieldNames<P extends string>(
-    path: P,
-  ): Array<FieldNameForPath<C, P>>;
-  function getFieldNames(path: string): string[];
-  function getFieldNames(path: string) {
+  function getFieldNames<P extends string>(path: P) {
     const nodeKey = pathMap[path];
-    return nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : [];
+    return (
+      nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : []
+    ) as Array<FieldNameForPath<C, P>>;
   }
 
-  function getFieldNamesByNodeKey<K extends NodeKey<C>>(
-    nodeKey: K,
-  ): Array<FieldNameForNodeKey<C, K>>;
-  function getFieldNamesByNodeKey(nodeKey: NodeKey<C>): string[];
-  function getFieldNamesByNodeKey(nodeKey: NodeKey<C>) {
-    return pageSchemaInfoCache[nodeKey]?.fieldNames ?? [];
+  function getFieldNamesByNodeKey<K extends NodeKey<C>>(nodeKey: K) {
+    return (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) as Array<
+      FieldNameForNodeKey<C, K>
+    >;
   }
 
   return {
