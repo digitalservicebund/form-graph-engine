@@ -34,7 +34,7 @@ export type ObjectSchemaLike = {
   parse: (data: unknown) => unknown;
   safeParse: (data: unknown) => SchemaResult<unknown>;
   safeEncode?: SafeEncodeLike<unknown>;
-  shape: Record<string, unknown>;
+  shape: SchemaRecord;
 };
 
 type InferSchema<S> =
