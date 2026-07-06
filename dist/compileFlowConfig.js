@@ -39,14 +39,17 @@ export const compileFlowConfig = ({ pages, initialStep, transitions, }) => {
     }
     function getSchema(path) {
         const nodeKey = pathMap[path];
-        return nodeKey ? pageSchemaInfoCache[nodeKey]?.compiledSchema : undefined;
+        const schema = nodeKey
+            ? pageSchemaInfoCache[nodeKey]?.compiledSchema
+            : undefined;
+        return schema;
     }
     function getFieldNames(path) {
         const nodeKey = pathMap[path];
-        return nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : [];
+        return (nodeKey ? (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []) : []);
     }
     function getFieldNamesByNodeKey(nodeKey) {
-        return pageSchemaInfoCache[nodeKey]?.fieldNames ?? [];
+        return (pageSchemaInfoCache[nodeKey]?.fieldNames ?? []);
     }
     return {
         pages,

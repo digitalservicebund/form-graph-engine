@@ -1,6 +1,6 @@
 {
   "name": "form-graph-engine",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "TypeScript library for compiling and running form flow graphs",
   "sideEffects": false,
   "scripts": {

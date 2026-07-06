@@ -82,7 +82,9 @@ export const findNextIncompleteNode = (compiledFlow, guardData, currentNodeKey) 
         visited.add(current);
         lastNode = current;
         const pageSchema = compiledFlow.getSchemaFromNodeKey(current);
-        if (pageSchema && pageSchema.safeParse(guardData).success) {
+        if (pageSchema &&
+            ((pageSchema.safeEncode && pageSchema.safeEncode(guardData).success) ||
+                pageSchema.safeParse(guardData).success)) {
             // Completed form page: reset tracking
             earliestSchemaLessNode = null;
         }

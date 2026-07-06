@@ -13,19 +13,10 @@ export declare const compileFlowConfig: <C extends PageConfigMap>({ pages, initi
     initialStep: NodeKey<C>;
     initialPath: string;
     getArrayInfo: (path: string) => Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
-    getSchema: {
-        <P extends string>(path: P): SchemaForPath<C, P>;
-        (path: string): SchemaForPath<C, string>;
-    };
+    getSchema: <P extends string>(path: P) => SchemaForPath<C, P>;
     getSchemaFromNodeKey: (nodeKey: NodeKey<C>) => import("./types.ts").ObjectSchemaLike | undefined;
-    getFieldNames: {
-        <P extends string>(path: P): Array<FieldNameForPath<C, P>>;
-        (path: string): string[];
-    };
-    getFieldNamesByNodeKey: {
-        <K extends NodeKey<C>>(nodeKey: K): Array<FieldNameForNodeKey<C, K>>;
-        (nodeKey: NodeKey<C>): string[];
-    };
+    getFieldNames: <P extends string>(path: P) => Array<FieldNameForPath<C, P>>;
+    getFieldNamesByNodeKey: <K extends NodeKey<C>>(nodeKey: K) => Array<FieldNameForNodeKey<C, K>>;
     arrayInfoCache: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>;
     getNodeKeyFromPath: (path: string) => Extract<keyof C, string> | undefined;
     getPathFromNodeKey: (nodeKey?: NodeKey<C>) => string | undefined;

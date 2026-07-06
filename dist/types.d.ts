@@ -1,26 +1,22 @@
 import type { PageData } from "./pageDataSchema.ts";
-type SafeParseResult<Output> = {
+import type * as z4 from "zod/v4/core";
+type ArraySchemaLike = z4.$ZodType<unknown[]>;
+type SchemaResult<Output> = {
     success: true;
     data: Output;
 } | {
     success: false;
     error: unknown;
 };
-type SchemaLike<Output = unknown> = {
-    parse(data: unknown): Output;
-    safeParse(data: unknown): SafeParseResult<Output>;
+type RuntimeSchemaMethods<Output> = {
+    parse: (data: unknown) => Output;
+    safeParse: (data: unknown) => SchemaResult<Output>;
+    safeEncode?: (data: Output) => SchemaResult<Output>;
 };
-type PageShape = Record<string, SchemaLike>;
-type ShapeOutput<Shape extends Record<string, unknown>> = {
-    [K in keyof Shape]: Shape[K] extends SchemaLike<infer Output> ? Output : never;
-};
-export type ObjectSchemaLike<Shape extends Record<string, unknown> = PageShape> = SchemaLike<ShapeOutput<Shape>> & {
-    shape: Shape;
-};
-type ArraySchemaLike<Item = unknown> = SchemaLike<Item[]>;
-type InferSchema<S> = S extends SchemaLike<infer Output> ? Output : S extends PageShape ? ShapeOutput<S> : never;
-export type PageSchema = ObjectSchemaLike | PageShape;
-type CompiledPageSchema<S extends PageSchema | undefined> = S extends ObjectSchemaLike ? S : S extends PageShape ? ObjectSchemaLike<S> : undefined;
+export type ObjectSchemaLike<Shape extends z4.$ZodShape = z4.$ZodShape> = z4.$ZodObject<Shape> & RuntimeSchemaMethods<z4.output<z4.$ZodObject<Shape>>>;
+type InferSchema<S> = S extends z4.$ZodType<infer Output> ? Output : S extends z4.$ZodShape ? z4.output<z4.$ZodObject<S>> : never;
+export type PageSchema = ObjectSchemaLike | z4.$ZodShape;
+type CompiledPageSchema<S extends PageSchema | undefined> = S extends ObjectSchemaLike ? S : S extends z4.$ZodShape ? ObjectSchemaLike<S> : undefined;
 type CompiledPageSchemaForNode<Node> = Node extends {
     pageSchema?: infer S extends PageSchema | undefined;
 } ? CompiledPageSchema<S> : undefined;
@@ -37,7 +33,7 @@ export type NodeKey<C extends PageConfigMap> = Extract<keyof C, string>;
 type NodeKeyForPath<C extends PageConfigMap, Path extends string> = {
     [K in NodeKey<C>]: C[K]["path"] extends Path ? K : never;
 }[NodeKey<C>];
-type FieldNameForSchema<S> = S extends ObjectSchemaLike<infer Shape> ? Extract<keyof Shape, string> : S extends PageShape ? Extract<keyof S, string> : never;
+type FieldNameForSchema<S> = S extends z4.$ZodObject<infer Shape> ? Extract<keyof Shape, string> : S extends z4.$ZodShape ? Extract<keyof S, string> : never;
 type FieldNameForNode<Node> = Node extends {
     pageSchema?: infer S extends PageSchema | undefined;
 } ? FieldNameForSchema<S> : never;
