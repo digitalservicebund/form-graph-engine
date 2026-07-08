@@ -52,7 +52,7 @@ describe("createFlowSession", () => {
 
   describe("nodeKey", () => {
     it("returns the correct nodeKey for the current path", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.nodeKey, "start");
     });
 
@@ -95,6 +95,11 @@ describe("createFlowSession", () => {
   });
 
   describe("initialPath", () => {
+    it("uses initialPath when no path is provided", () => {
+      const session = createFlowSession(flow, noData);
+      deepStrictEqual(session.nodeKey, "start");
+    });
+
     it("always returns the path of the initial step", () => {
       const session = createFlowSession(flow, noData, "/end");
       deepStrictEqual(session.initialPath, "/start");
@@ -103,7 +108,7 @@ describe("createFlowSession", () => {
 
   describe("isComplete", () => {
     it("is true when the simulation reaches a null transition", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.isComplete, true);
     });
 
@@ -121,7 +126,7 @@ describe("createFlowSession", () => {
         initialStep: "a",
         transitions: blockedTransitions,
       });
-      const session = createFlowSession(blockedFlow, noData, "/a");
+      const session = createFlowSession(blockedFlow, noData);
       deepStrictEqual(session.isComplete, false);
     });
   });
@@ -133,7 +138,7 @@ describe("createFlowSession", () => {
     });
 
     it("returns undefined for pages without a schema", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.pageSchema, undefined);
     });
   });
@@ -145,14 +150,14 @@ describe("createFlowSession", () => {
     });
 
     it("returns an empty array for pages without a schema", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.fieldNames, []);
     });
   });
 
   describe("nextPath", () => {
     it("returns the next step path", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.nextPath(), "/middle");
     });
 
@@ -183,7 +188,7 @@ describe("createFlowSession", () => {
         initialStep: "list",
         transitions: arrayTransitions,
       });
-      const session = createFlowSession(arrayFlow, noData, "/list");
+      const session = createFlowSession(arrayFlow, noData);
       deepStrictEqual(session.nextPath(), "/done");
     });
 
@@ -208,11 +213,7 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(
-        guardedFlow,
-        { answer: "no" },
-        "/start",
-      );
+      const session = createFlowSession(guardedFlow, { answer: "no" });
       deepStrictEqual(session.nextPath(), "/no");
     });
 
@@ -233,11 +234,10 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(
-        autoSkipFlow,
-        { email: "a@b.de", city: "Berlin" },
-        "/start",
-      );
+      const session = createFlowSession(autoSkipFlow, {
+        email: "a@b.de",
+        city: "Berlin",
+      });
       deepStrictEqual(session.nextPath(), "/contact");
     });
 
@@ -256,7 +256,7 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(withInfoPageFlow, {}, "/start");
+      const session = createFlowSession(withInfoPageFlow, {});
       deepStrictEqual(session.nextPath(), "/info");
     });
 
@@ -277,11 +277,7 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(
-        withInfoPageFlow,
-        { done: true },
-        "/start",
-      );
+      const session = createFlowSession(withInfoPageFlow, { done: true });
       deepStrictEqual(session.nextPath(), "/info");
     });
   });
@@ -304,11 +300,7 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(
-        withInfoPageFlow,
-        { done: true },
-        "/start",
-      );
+      const session = createFlowSession(withInfoPageFlow, { done: true });
       deepStrictEqual(session.nextIncomplete(), "/review");
     });
 
@@ -325,20 +317,20 @@ describe("createFlowSession", () => {
     });
 
     it("returns undefined at the initial step", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.prevPath, undefined);
     });
   });
 
   describe("isReachable", () => {
     it("returns true for paths reachable from the initial step", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       ok(session.isReachable("/middle"));
       ok(session.isReachable("/end"));
     });
 
     it("returns false for an unknown path", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       ok(!session.isReachable("/nonexistent"));
     });
 
@@ -361,7 +353,7 @@ describe("createFlowSession", () => {
         initialStep: "start",
         transitions: branchedTransitions,
       });
-      const session = createFlowSession(branchedFlow, noData, "/start");
+      const session = createFlowSession(branchedFlow, noData);
       ok(!session.isReachable("/blocked"));
       ok(session.isReachable("/open"));
     });
@@ -369,7 +361,7 @@ describe("createFlowSession", () => {
 
   describe("arrayInfo", () => {
     it("returns undefined for non-array pages", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.arrayInfo, undefined);
     });
 
@@ -395,7 +387,7 @@ describe("createFlowSession", () => {
         initialStep: "list",
         transitions: arrayTransitions,
       });
-      const session = createFlowSession(arrayFlow, noData, "/list");
+      const session = createFlowSession(arrayFlow, noData);
       strictEqual(session.arrayInfo?.name, "items");
       strictEqual(session.arrayInfo?.entryPoint, "daten");
     });
@@ -403,7 +395,7 @@ describe("createFlowSession", () => {
 
   describe("path", () => {
     it("contains the simulation path from initial to terminal step as full paths", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       deepStrictEqual(session.path, ["/start", "/middle", "/end"]);
     });
   });
@@ -420,7 +412,7 @@ describe("createFlowSession", () => {
         initialStep: "a",
         transitions: nestedTransitions,
       });
-      const session = createFlowSession(nestedFlow, noData, "/section/a");
+      const session = createFlowSession(nestedFlow, noData);
       ok("/section" in session.statusTree);
     });
 
@@ -439,7 +431,7 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(treeFlow, noData, "/section/a");
+      const session = createFlowSession(treeFlow, noData);
       strictEqual(session.statusTree["/section"]?.isReachable, true);
       strictEqual(session.statusTree["/section"]?.isDone, true);
       strictEqual(session.statusTree["/hidden"]?.isReachable, false);
@@ -448,7 +440,7 @@ describe("createFlowSession", () => {
 
   describe("prunedUserData", () => {
     it("keeps fields belonging to reachable pages", () => {
-      const session = createFlowSession(flow, { answer: "hello" }, "/start");
+      const session = createFlowSession(flow, { answer: "hello" });
       deepStrictEqual(session.prunedUserData, { answer: "hello" });
     });
 
@@ -470,11 +462,10 @@ describe("createFlowSession", () => {
         },
       });
       // Guard fails → "yes" is unreachable → yesField should be pruned
-      const session = createFlowSession(
-        guardedFlow,
-        { yesField: "no", noField: "n" },
-        "/start",
-      );
+      const session = createFlowSession(guardedFlow, {
+        yesField: "no",
+        noField: "n",
+      });
       deepStrictEqual(session.prunedUserData, { noField: "n" });
     });
 
@@ -502,11 +493,9 @@ describe("createFlowSession", () => {
         },
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const session = createFlowSession(
-        arrayFlow,
-        { items: [{ val: "a" }] } as any,
-        "/list",
-      );
+      const session = createFlowSession(arrayFlow, {
+        items: [{ val: "a" }],
+      } as any);
       deepStrictEqual(session.prunedUserData, { items: [{ val: "a" }] });
     });
 
@@ -534,12 +523,8 @@ describe("createFlowSession", () => {
         },
       });
 
-      const session = createFlowSession(
-        arrayFlow,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        { items: {} as any } as any,
-        "/list",
-      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const session = createFlowSession(arrayFlow, { items: {} } as any);
 
       ok(!session.isReachable("/items/#/daten"));
       deepStrictEqual(session.nextPath(), "/done");
@@ -607,16 +592,12 @@ describe("createFlowSession", () => {
       // item 1: minor (isAdult=no) → birthday reachable, name unreachable
       // item 1 also has a stale 'name' from a previous answer that should be pruned
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const session = createFlowSession(
-        arrayFlow,
-        {
-          people: [
-            { isAdult: "yes", name: "Alice" },
-            { isAdult: "no", birthday: "1990-01-01", name: "stale" },
-          ],
-        } as any,
-        "/list",
-      );
+      const session = createFlowSession(arrayFlow, {
+        people: [
+          { isAdult: "yes", name: "Alice" },
+          { isAdult: "no", birthday: "1990-01-01", name: "stale" },
+        ],
+      });
 
       deepStrictEqual(session.prunedUserData, {
         people: [
@@ -627,7 +608,7 @@ describe("createFlowSession", () => {
     });
 
     it("does not include pageData in prunedUserData", () => {
-      const session = createFlowSession(flow, noData, "/start");
+      const session = createFlowSession(flow, noData);
       ok(!("pageData" in session.prunedUserData));
     });
 
@@ -697,21 +678,17 @@ describe("createFlowSession", () => {
       //   toy 0: isFavorite=yes → color="red" is kept
       //   toy 1: isFavorite=no  → color="stale" should be pruned
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const session = createFlowSession(
-        nestedFlow,
-        {
-          children: [
-            {
-              name: "Alice",
-              toys: [
-                { toyName: "Lego", isFavorite: "yes", color: "red" },
-                { toyName: "Ball", isFavorite: "no", color: "stale" },
-              ],
-            },
-          ],
-        } as any,
-        "/children",
-      );
+      const session = createFlowSession(nestedFlow, {
+        children: [
+          {
+            name: "Alice",
+            toys: [
+              { toyName: "Lego", isFavorite: "yes", color: "red" },
+              { toyName: "Ball", isFavorite: "no", color: "stale" },
+            ],
+          },
+        ],
+      } as any);
 
       deepStrictEqual(session.prunedUserData, {
         children: [

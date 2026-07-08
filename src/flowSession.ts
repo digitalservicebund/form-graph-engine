@@ -22,11 +22,11 @@ const getCurrentNode = <C extends PageConfigMap>(
 export const createFlowSession = <C extends PageConfigMap, P extends string>(
   compiledFlow: CompiledFlow<C>,
   userData: NoInfer<InferredUserData<C>>,
-  currentPath: P,
+  currentPath?: P,
 ) => {
   const { nodeKey, normalizedPath, currentPageData } = getCurrentNode(
     compiledFlow,
-    currentPath,
+    currentPath ?? compiledFlow.initialPath,
   );
   if (!nodeKey) throw new Error(`Invalid path: ${currentPath}`);
 
