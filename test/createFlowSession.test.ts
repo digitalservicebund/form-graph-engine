@@ -6,19 +6,19 @@ import z from "zod";
 
 const noData = {};
 
-const pages = {
-  start: { path: "/start" },
-  middle: { path: "/middle", pageSchema: { answer: z.string() } },
-  end: { path: "/end" },
-} as const;
-
-const transitions = {
-  start: "middle",
-  middle: "end",
-  end: null,
-} as const;
-
-const flow = compileFlowConfig({ pages, initialStep: "start", transitions });
+const flow = compileFlowConfig({
+  pages: {
+    start: { path: "/start" },
+    middle: { path: "/middle", pageSchema: { answer: z.string() } },
+    end: { path: "/end" },
+  },
+  initialStep: "start",
+  transitions: {
+    start: "middle",
+    middle: "end",
+    end: null,
+  },
+});
 
 describe("createFlowSession", () => {
   describe("invalid path", () => {
@@ -73,16 +73,13 @@ describe("createFlowSession", () => {
         },
         initialStep: "list",
         transitions: {
-          list: [
-            { target: "item" as const, type: "addArrayItem" as const },
-            { target: "done" as const },
-          ],
+          list: [{ target: "item", type: "addArrayItem" }, { target: "done" }],
           item: [
             {
-              target: "done" as const,
+              target: "done",
               guard: (d) => d.pageData.arrayIndexes?.[0] === 2,
             },
-            { target: "list" as const },
+            { target: "list" },
           ],
           done: null,
         },
@@ -113,18 +110,16 @@ describe("createFlowSession", () => {
     });
 
     it("is false when guards block all forward progress", () => {
-      const blockedPages = {
-        a: { path: "/a" },
-        b: { path: "/b" },
-      } as const;
-      const blockedTransitions = {
-        a: [{ target: "b" as const, guard: () => false }],
-        b: null,
-      };
       const blockedFlow = compileFlowConfig({
-        pages: blockedPages,
+        pages: {
+          a: { path: "/a" },
+          b: { path: "/b" },
+        },
         initialStep: "a",
-        transitions: blockedTransitions,
+        transitions: {
+          a: [{ target: "b", guard: () => false }],
+          b: null,
+        },
       });
       const session = createFlowSession(blockedFlow, noData);
       deepStrictEqual(session.isComplete, false);
@@ -134,7 +129,10 @@ describe("createFlowSession", () => {
   describe("pageSchema", () => {
     it("returns a ZodObject for pages with a schema", () => {
       const session = createFlowSession(flow, noData, "/middle");
-      ok(session.pageSchema instanceof z.ZodObject);
+      ok(
+        typeof session.pageSchema === "object" &&
+          (session.pageSchema as object) instanceof z.ZodObject,
+      );
     });
 
     it("returns undefined for pages without a schema", () => {
@@ -167,26 +165,21 @@ describe("createFlowSession", () => {
     });
 
     it("skips addArrayItem transitions to return the next main-branch step", () => {
-      const arrayPages = {
-        list: {
-          path: "/list",
-          arraySummary: { name: "items", schema: z.array(z.string()) },
-        },
-        item: { path: "/items/#/daten" },
-        done: { path: "/done" },
-      } as const;
-      const arrayTransitions = {
-        list: [
-          { target: "item" as const, type: "addArrayItem" as const },
-          { target: "done" as const },
-        ],
-        item: "done" as const,
-        done: null,
-      };
       const arrayFlow = compileFlowConfig({
-        pages: arrayPages,
+        pages: {
+          list: {
+            path: "/list",
+            arraySummary: { name: "items", schema: z.array(z.string()) },
+          },
+          item: { path: "/items/#/daten" },
+          done: { path: "/done" },
+        },
         initialStep: "list",
-        transitions: arrayTransitions,
+        transitions: {
+          list: [{ target: "item", type: "addArrayItem" }, { target: "done" }],
+          item: "done",
+          done: null,
+        },
       });
       const session = createFlowSession(arrayFlow, noData);
       deepStrictEqual(session.nextPath(), "/done");
@@ -335,23 +328,21 @@ describe("createFlowSession", () => {
     });
 
     it("returns false for a path blocked by always-false guards", () => {
-      const branchedPages = {
-        start: { path: "/start" },
-        blocked: { path: "/blocked" },
-        open: { path: "/open" },
-      } as const;
-      const branchedTransitions = {
-        start: [
-          { target: "blocked" as const, guard: () => false },
-          { target: "open" as const },
-        ],
-        blocked: null,
-        open: null,
-      };
       const branchedFlow = compileFlowConfig({
-        pages: branchedPages,
+        pages: {
+          start: { path: "/start" },
+          blocked: { path: "/blocked" },
+          open: { path: "/open" },
+        },
         initialStep: "start",
-        transitions: branchedTransitions,
+        transitions: {
+          start: [
+            { target: "blocked", guard: () => false },
+            { target: "open" },
+          ],
+          blocked: null,
+          open: null,
+        },
       });
       const session = createFlowSession(branchedFlow, noData);
       ok(!session.isReachable("/blocked"));
@@ -366,26 +357,21 @@ describe("createFlowSession", () => {
     });
 
     it("returns the array name and entryPoint for array summary pages", () => {
-      const arrayPages = {
-        list: {
-          path: "/list",
-          arraySummary: { name: "items", schema: z.array(z.string()) },
-        },
-        item: { path: "/items/#/daten" },
-        done: { path: "/done" },
-      } as const;
-      const arrayTransitions = {
-        list: [
-          { target: "item" as const, type: "addArrayItem" as const },
-          { target: "done" as const },
-        ],
-        item: "done" as const,
-        done: null,
-      };
       const arrayFlow = compileFlowConfig({
-        pages: arrayPages,
+        pages: {
+          list: {
+            path: "/list",
+            arraySummary: { name: "items", schema: z.array(z.string()) },
+          },
+          item: { path: "/items/#/daten" },
+          done: { path: "/done" },
+        },
         initialStep: "list",
-        transitions: arrayTransitions,
+        transitions: {
+          list: [{ target: "item", type: "addArrayItem" }, { target: "done" }],
+          item: "done",
+          done: null,
+        },
       });
       const session = createFlowSession(arrayFlow, noData);
       strictEqual(session.arrayInfo?.name, "items");
@@ -402,15 +388,13 @@ describe("createFlowSession", () => {
 
   describe("statusTree", () => {
     it("is populated for flows with nested stepIds", () => {
-      const nestedPages = {
-        a: { path: "/section/a" },
-        b: { path: "/section/b" },
-      } as const;
-      const nestedTransitions = { a: "b", b: null } as const;
       const nestedFlow = compileFlowConfig({
-        pages: nestedPages,
+        pages: {
+          a: { path: "/section/a" },
+          b: { path: "/section/b" },
+        },
         initialStep: "a",
-        transitions: nestedTransitions,
+        transitions: { a: "b", b: null },
       });
       const session = createFlowSession(nestedFlow, noData);
       ok("/section" in session.statusTree);
@@ -484,18 +468,12 @@ describe("createFlowSession", () => {
         },
         initialStep: "list",
         transitions: {
-          list: [
-            { target: "item" as const, type: "addArrayItem" as const },
-            { target: "done" as const },
-          ],
-          item: "done" as const,
+          list: [{ target: "item", type: "addArrayItem" }, { target: "done" }],
+          item: "done",
           done: null,
         },
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const session = createFlowSession(arrayFlow, {
-        items: [{ val: "a" }],
-      } as any);
+      const session = createFlowSession(arrayFlow, { items: [{ val: "a" }] });
       deepStrictEqual(session.prunedUserData, { items: [{ val: "a" }] });
     });
 
@@ -514,16 +492,12 @@ describe("createFlowSession", () => {
         },
         initialStep: "list",
         transitions: {
-          list: [
-            { target: "item" as const, type: "addArrayItem" as const },
-            { target: "done" as const },
-          ],
-          item: "done" as const,
+          list: [{ target: "item", type: "addArrayItem" }, { target: "done" }],
+          item: "done",
           done: null,
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const session = createFlowSession(arrayFlow, { items: {} } as any);
 
       ok(!session.isReachable("/items/#/daten"));
@@ -569,21 +543,20 @@ describe("createFlowSession", () => {
         initialStep: "list",
         transitions: {
           list: [
-            { target: "adultCheck" as const, type: "addArrayItem" as const },
-            { target: "done" as const },
+            { target: "adultCheck", type: "addArrayItem" },
+            { target: "done" },
           ],
           adultCheck: [
             {
-              target: "namePage" as const,
+              target: "namePage",
               guard: (d) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (d as any).people?.[(d as any).pageData?.arrayIndexes?.[0]]
-                  ?.isAdult === "yes",
+                d["people"]?.[d.pageData?.arrayIndexes?.at(0)!]?.isAdult ===
+                "yes",
             },
-            { target: "birthdayPage" as const },
+            { target: "birthdayPage" },
           ],
-          namePage: "list" as const,
-          birthdayPage: "list" as const,
+          namePage: "list",
+          birthdayPage: "list",
           done: null,
         },
       });
@@ -650,26 +623,29 @@ describe("createFlowSession", () => {
         initialStep: "childrenList",
         transitions: {
           childrenList: [
-            { target: "childEntry" as const, type: "addArrayItem" as const },
-            { target: "done" as const },
+            { target: "childEntry", type: "addArrayItem" },
+            { target: "done" },
           ],
-          childEntry: "toyList" as const,
+          childEntry: "toyList",
           toyList: [
-            { target: "toyEntry" as const, type: "addArrayItem" as const },
-            { target: "childrenList" as const },
+            { target: "toyEntry", type: "addArrayItem" },
+            { target: "childrenList" },
           ],
           toyEntry: [
             {
-              target: "toyColor" as const,
+              target: "toyColor",
               guard: (d) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (d as any).children?.[(d as any).pageData?.arrayIndexes?.[0]]
-                  ?.toys?.[(d as any).pageData?.arrayIndexes?.[1]]
-                  ?.isFavorite === "yes",
+                (
+                  d["children"] as Array<{
+                    toys?: Array<{ isFavorite?: string }>;
+                  }>
+                )?.[d.pageData?.arrayIndexes?.at(0)!]?.toys?.[
+                  d.pageData?.arrayIndexes?.at(1)!
+                ]?.isFavorite === "yes",
             },
-            { target: "toyList" as const },
+            { target: "toyList" },
           ],
-          toyColor: "toyList" as const,
+          toyColor: "toyList",
           done: null,
         },
       });
