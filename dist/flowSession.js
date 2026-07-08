@@ -13,7 +13,7 @@ const getCurrentNode = (compiledFlow, currentPath) => {
  * Resolves navigation, schemas, and status based on current user data and path.
  */
 export const createFlowSession = (compiledFlow, userData, currentPath) => {
-    const { nodeKey, normalizedPath, currentPageData } = getCurrentNode(compiledFlow, currentPath);
+    const { nodeKey, normalizedPath, currentPageData } = getCurrentNode(compiledFlow, currentPath ?? compiledFlow.initialPath);
     if (!nodeKey)
         throw new Error(`Invalid path: ${currentPath}`);
     const simulation = simulate(compiledFlow.transitions, compiledFlow.initialStep, userData, compiledFlow.arrayInfoCache);

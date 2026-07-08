@@ -4,7 +4,7 @@ import type { InferredUserData, PageConfigMap } from "./types.ts";
  * Creates a session for the current step in a flow.
  * Resolves navigation, schemas, and status based on current user data and path.
  */
-export declare const createFlowSession: <C extends PageConfigMap, P extends string>(compiledFlow: CompiledFlow<C>, userData: NoInfer<InferredUserData<C>>, currentPath: P) => {
+export declare const createFlowSession: <C extends PageConfigMap, P extends string>(compiledFlow: CompiledFlow<C>, userData: NoInfer<InferredUserData<C>>, currentPath?: P) => {
     nodeKey: Extract<keyof C, string>;
     pageSchema: import("./types.ts").SchemaForPath<C, P>;
     pageData: Partial<((C[keyof C] extends infer T ? T extends C[keyof C] ? T extends {
