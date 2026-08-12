@@ -711,4 +711,35 @@ describe("createFlowSession", () => {
       deepStrictEqual(session.prunedUserData, { var1: "skip" });
     });
   });
+
+  describe("progress", () => {
+    it("exposes max, progress and 1-based steps for a mid-flow page", () => {
+      const session = createFlowSession(flow, noData, "/middle");
+
+      deepStrictEqual(session.progress, {
+        max: 100,
+        progress: 50,
+        steps: { total: 3, current: 2 },
+      });
+    });
+
+    it("saturates progress and steps on the terminal page", () => {
+      const session = createFlowSession(flow, noData, "/end");
+
+      deepStrictEqual(session.progress, {
+        max: 100,
+        progress: 100,
+        steps: { total: 3, current: 3 },
+      });
+    });
+
+    it("steps.total is the same on every page", () => {
+      for (const path of ["/start", "/middle", "/end"]) {
+        strictEqual(
+          createFlowSession(flow, noData, path).progress.steps.total,
+          3,
+        );
+      }
+    });
+  });
 });

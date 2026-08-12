@@ -1,5 +1,7 @@
 import { compileFlowConfig } from "../src/compileFlowConfig.ts";
 import { createFlowSession } from "../src/flowSession.ts";
+// Imported from the entrypoint so this also asserts the public export exists.
+import type { Progress } from "../src/index.ts";
 import z from "zod";
 
 const pages = {
@@ -48,6 +50,8 @@ const startSessionSchema: undefined = createFlowSession(
   "/start",
 ).pageSchema;
 
+const sessionProgress: Progress = createFlowSession(flow, {}, "/info").progress;
+
 void rawShapeSchema;
 void typedSchema;
 void startSchema;
@@ -62,3 +66,4 @@ void startFieldNamesByNodeKey;
 void parsedRawShape;
 void typedSessionSchema;
 void startSessionSchema;
+void sessionProgress;

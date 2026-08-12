@@ -2,6 +2,7 @@ import { extractEdges } from "./routing.ts";
 import type {
   NodeKey,
   PageConfigMap,
+  Progress,
   TransitionConfigMap,
   TransitionConfig,
 } from "./types.ts";
@@ -77,14 +78,24 @@ export const precomputeProgress = <C extends PageConfigMap>(
   const isFinal = (key: FlowKey): boolean =>
     extractEdges(router[key]).length === 0;
   const max = 100;
+  // Steps are 1-based counts, so a flow of max depth N has N + 1 steps.
+  const totalSteps = maxOverallProgress + 1;
 
   return {
-    getProgress: (key: FlowKey) => {
+    getProgress: (key: FlowKey): Progress => {
       if (maxOverallProgress === 0 || isFinal(key))
-        return { max, progress: max };
+        return {
+          max,
+          progress: max,
+          steps: { total: totalSteps, current: totalSteps },
+        };
       const depth = nodeDepths.get(key) ?? 0;
       const progress = Math.min((depth / maxOverallProgress) * max, 99);
-      return { max, progress };
+      return {
+        max,
+        progress,
+        steps: { total: totalSteps, current: depth + 1 },
+      };
     },
     isFinal,
   };

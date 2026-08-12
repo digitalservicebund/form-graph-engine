@@ -78,4 +78,13 @@ export type TransitionConfig<Key, Data> = Key | null | Array<GuardedTransition<K
 export type TransitionConfigMap<C extends PageConfigMap> = Record<NodeKey<C>, TransitionConfig<NodeKey<C>, InferredUserData<C> & {
     pageData: PageData;
 }>>;
+type ProgressSteps = {
+    total: number;
+    current: number;
+};
+export type Progress = {
+    max: number;
+    progress: number;
+    steps: ProgressSteps;
+};
 export {};

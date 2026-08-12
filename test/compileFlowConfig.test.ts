@@ -229,5 +229,31 @@ describe("compileFlowConfig", () => {
     it("returns undefined for an unknown path", () => {
       deepStrictEqual(flow.getProgress("/unknown"), undefined);
     });
+
+    it("exposes 1-based steps for the initial step", () => {
+      deepStrictEqual(flow.getProgress("/start")?.steps, {
+        total: 4,
+        current: 1,
+      });
+    });
+
+    it("terminal step has steps.current === steps.total", () => {
+      deepStrictEqual(flow.getProgress("/end")?.steps, {
+        total: 4,
+        current: 4,
+      });
+    });
+
+    it("steps.total is the same for every step", () => {
+      for (const page of Object.values(pages)) {
+        deepStrictEqual(flow.getProgress(page.path)?.steps.total, 4);
+      }
+    });
+  });
+
+  describe("progressByKey", () => {
+    it("matches getProgress for the same node", () => {
+      deepStrictEqual(flow.progressByKey("info"), flow.getProgress("/info"));
+    });
   });
 });
