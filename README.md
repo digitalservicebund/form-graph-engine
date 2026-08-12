@@ -142,7 +142,14 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 `session.isComplete` is `true` when the active [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) path has reached a terminal node (a page with a `null` transition).
 
-`session.progress` is a `{ current: number, total: number }` object representing how far along the current path the active node is, based on the pre-computed graph structure. Useful for progress bars.
+`session.progress` describes how far along the current path the active node is, based on the pre-computed graph structure. Its type is exported as `Progress`.
+
+```ts
+session.progress;
+```
+
+- `progress` is a percentage of `max` (always `100`), useful for progress bars. It is capped at `99` for non-final nodes, so only a terminal page reports `100`.
+- `steps` is a 1-based step count, useful for "Step 2 of 3" labels. `total` is the length of the longest path through the flow and is the same for every page; `current` is the active page's position, and saturates to `total` on a terminal page.
 
 `session.statusTree` is a nested tree of `{ isDone, isReachable }` status nodes, keyed by path prefixes. Useful for rendering section-level progress in a multi-part form (e.g. a sidebar showing which sections are complete).
 
