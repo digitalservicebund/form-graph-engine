@@ -1,4 +1,4 @@
-import type { FieldNameForNodeKey, FieldNameForPath, NodeKey, PageConfigMap, SchemaForPath, TransitionConfigMap } from "./types.ts";
+import type { FieldNameForNodeKey, FieldNameForPath, NodeKey, PageConfigMap, Progress, SchemaForPath, TransitionConfigMap } from "./types.ts";
 /**
  * Compiles a flow configuration into an optimized, executable form.
  * Performs static analysis, path mapping, and caches computed properties.
@@ -21,13 +21,7 @@ export declare const compileFlowConfig: <C extends PageConfigMap>({ pages, initi
     getNodeKeyFromPath: (path: string) => Extract<keyof C, string> | undefined;
     getPathFromNodeKey: (nodeKey?: NodeKey<C>) => string | undefined;
     isFinal: (path: string) => boolean | undefined;
-    getProgress: (path: string) => {
-        max: number;
-        progress: number;
-    } | undefined;
-    progressByKey: (nodeKey: NodeKey<C>) => {
-        max: number;
-        progress: number;
-    };
+    getProgress: (path: string) => Progress | undefined;
+    progressByKey: (nodeKey: NodeKey<C>) => Progress;
 };
 export type CompiledFlow<C extends PageConfigMap> = ReturnType<typeof compileFlowConfig<C>>;

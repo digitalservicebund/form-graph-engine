@@ -48,13 +48,23 @@ export const precomputeProgress = (router, initialStep) => {
     }
     const isFinal = (key) => extractEdges(router[key]).length === 0;
     const max = 100;
+    // Steps are 1-based counts, so a flow of max depth N has N + 1 steps.
+    const totalSteps = maxOverallProgress + 1;
     return {
         getProgress: (key) => {
             if (maxOverallProgress === 0 || isFinal(key))
-                return { max, progress: max };
+                return {
+                    max,
+                    progress: max,
+                    steps: { total: totalSteps, current: totalSteps },
+                };
             const depth = nodeDepths.get(key) ?? 0;
             const progress = Math.min((depth / maxOverallProgress) * max, 99);
-            return { max, progress };
+            return {
+                max,
+                progress,
+                steps: { total: totalSteps, current: depth + 1 },
+            };
         },
         isFinal,
     };
