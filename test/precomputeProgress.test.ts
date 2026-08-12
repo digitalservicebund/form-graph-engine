@@ -39,6 +39,23 @@ describe("precomputeGraph", () => {
       deepStrictEqual(graph.isFinal("a"), false);
       deepStrictEqual(graph.isFinal("b"), false);
     });
+
+    it("steps.total is the same for every node in the flow", () => {
+      deepStrictEqual(graph.getProgress("a").steps.total, 3);
+      deepStrictEqual(graph.getProgress("b").steps.total, 3);
+      deepStrictEqual(graph.getProgress("c").steps.total, 3);
+    });
+
+    it("steps.current is 1-based and increments along the path", () => {
+      deepStrictEqual(graph.getProgress("a").steps.current, 1);
+      deepStrictEqual(graph.getProgress("b").steps.current, 2);
+      deepStrictEqual(graph.getProgress("c").steps.current, 3);
+    });
+
+    it("terminal node has steps.current === steps.total", () => {
+      const { steps } = graph.getProgress("c");
+      deepStrictEqual(steps.current, steps.total);
+    });
   });
 
   describe("branching flow", () => {
@@ -61,6 +78,52 @@ describe("precomputeGraph", () => {
         graph.getProgress("left").progress >
           graph.getProgress("start").progress,
       );
+    });
+
+    it("sibling branch nodes get the same steps.current", () => {
+      deepStrictEqual(
+        graph.getProgress("left").steps.current,
+        graph.getProgress("right").steps.current,
+      );
+    });
+
+    it("steps.total is the same for every node in the flow", () => {
+      deepStrictEqual(graph.getProgress("start").steps.total, 2);
+      deepStrictEqual(graph.getProgress("left").steps.total, 2);
+      deepStrictEqual(graph.getProgress("right").steps.total, 2);
+    });
+  });
+
+  describe("final node below max depth", () => {
+    const router = {
+      start: [{ target: "left" as const }, { target: "right" as const }],
+      left: null,
+      right: "deep" as const,
+      deep: null,
+    };
+    const graph = precomputeProgress(router, "start");
+
+    it("steps.total is the same for every node in the flow", () => {
+      deepStrictEqual(graph.getProgress("start").steps.total, 3);
+      deepStrictEqual(graph.getProgress("left").steps.total, 3);
+      deepStrictEqual(graph.getProgress("right").steps.total, 3);
+      deepStrictEqual(graph.getProgress("deep").steps.total, 3);
+    });
+
+    it("a final node on a short branch saturates to steps.total", () => {
+      deepStrictEqual(graph.getProgress("left").steps, {
+        total: 3,
+        current: 3,
+      });
+    });
+
+    it("non-final nodes report their actual depth", () => {
+      deepStrictEqual(graph.getProgress("start").steps.current, 1);
+      deepStrictEqual(graph.getProgress("right").steps.current, 2);
+    });
+
+    it("the deepest final node also reports steps.total", () => {
+      deepStrictEqual(graph.getProgress("deep").steps.current, 3);
     });
   });
 
@@ -87,6 +150,19 @@ describe("precomputeGraph", () => {
         graph.getProgress("done").progress > graph.getProgress("list").progress,
       );
     });
+
+    it("array item node shares steps.current with its parent list node", () => {
+      deepStrictEqual(
+        graph.getProgress("item").steps.current,
+        graph.getProgress("list").steps.current,
+      );
+    });
+
+    it("steps.total does not count array item nodes", () => {
+      deepStrictEqual(graph.getProgress("list").steps.total, 2);
+      deepStrictEqual(graph.getProgress("item").steps.total, 2);
+      deepStrictEqual(graph.getProgress("done").steps.total, 2);
+    });
   });
 
   describe("single-node flow", () => {
@@ -100,6 +176,13 @@ describe("precomputeGraph", () => {
 
     it("isFinal is true for the sole node", () => {
       deepStrictEqual(graph.isFinal("only"), true);
+    });
+
+    it("reports one step of one", () => {
+      deepStrictEqual(graph.getProgress("only").steps, {
+        total: 1,
+        current: 1,
+      });
     });
   });
 

@@ -5,6 +5,8 @@ export type {
   InferredUserData,
   NodeKey,
   PageConfigMap,
+  Progress,
+  ProgressSteps,
   TransitionConfig,
   TransitionConfigMap,
 } from "./types.ts";

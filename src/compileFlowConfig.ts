@@ -7,6 +7,7 @@ import type {
   FieldNameForPath,
   NodeKey,
   PageConfigMap,
+  Progress,
   SchemaForPath,
   TransitionConfigMap,
 } from "./types.ts";
@@ -102,11 +103,12 @@ export const compileFlowConfig = <C extends PageConfigMap>({
       const nodeKey = getNodeKeyFromPath(path);
       return nodeKey != null ? graphStats.isFinal(nodeKey) : undefined;
     },
-    getProgress: (path: string) => {
+    getProgress: (path: string): Progress | undefined => {
       const nodeKey = getNodeKeyFromPath(path);
       return nodeKey != null ? graphStats.getProgress(nodeKey) : undefined;
     },
-    progressByKey: (nodeKey: NodeKey<C>) => graphStats.getProgress(nodeKey),
+    progressByKey: (nodeKey: NodeKey<C>): Progress =>
+      graphStats.getProgress(nodeKey),
   };
 };
 
