@@ -6,7 +6,6 @@ export type {
   NodeKey,
   PageConfigMap,
   Progress,
-  ProgressSteps,
   TransitionConfig,
   TransitionConfigMap,
 } from "./types.ts";
