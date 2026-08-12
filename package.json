@@ -35,7 +35,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^26.4.0",
+      "version": "^26.7.0",
       "onFail": "download"
     }
   },
@@ -48,8 +48,8 @@
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
-    "oxfmt": "^0.62.0",
-    "oxlint": "^1.77.0",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
     "typescript": "^6.0.3",
     "zod": "4.4.3",
     "zod-alt": "npm:zod@4.3.0"
