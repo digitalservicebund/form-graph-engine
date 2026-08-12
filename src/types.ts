@@ -150,7 +150,7 @@ export type TransitionConfigMap<C extends PageConfigMap> = Record<
   TransitionConfig<NodeKey<C>, InferredUserData<C> & { pageData: PageData }>
 >;
 
-export type ProgressSteps = {
+type ProgressSteps = {
   total: number;
   current: number;
 };
