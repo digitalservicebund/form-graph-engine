@@ -21,6 +21,12 @@ A multi-page form is abstracted as a [directed acyclic graph](https://en.wikiped
 - There is one **entry node** (no incoming transition) and one or more **exit nodes** (no outgoing transitions)
 - There are no loops in the graph
 
+The graph holds no state: the caller supplies the current position and the collected answers on every evaluation, so the same flow yields the same result on the server, on the client, on resume, or from a deep link.
+
+📖 [Concepts](docs/concepts.md) explains the model, the active path, and what the engine expects from your guards.
+
+💡 [ADR 0](docs/adr/0000-why-form-graph-engine-exists.md) records why this library exists, and what was considered instead.
+
 ## Usage
 
 The library API is split in two:
@@ -59,12 +65,20 @@ A transition needs to be specified for each page.
 
 A guard is a small function used in conditional transitions. It receives the data the machine was initialized with and returns a boolean, to indicate whether its corresponding target should be the next destination. The type of userData is fully inferred by the `pageSchemas` defined in `pages`.
 
+> [!IMPORTANT]
+> Guards must be pure and null-safe: `userData` is `Partial`, so a field may still be `undefined` when a guard runs. See [Concepts → Caller contract](docs/concepts.md#caller-contract).
+
 ##### Example
 
 ```ts
 const transitions = {
   key1: "key2",
-  key2: [{ guard: (userData) => userData.myInput.length > 5, target: "key3" }],
+  key2: [
+    {
+      guard: (userData) => (userData.myInput?.length ?? 0) > 5,
+      target: "key3",
+    },
+  ],
   key3: null,
 };
 ```
@@ -91,8 +105,11 @@ export const compiledFlow = compileFlowConfig({
   transitions: {
     key1: "key2",
     key2: [
-      { guard: (userData) => userData.myInput.length > 5, target: "key3a" },
-      { guard: (userData) => true, target: "key3b" },
+      {
+        guard: (userData) => (userData.myInput?.length ?? 0) > 5,
+        target: "key3a",
+      },
+      { guard: () => true, target: "key3b" },
     ],
     key3a: null,
     key3b: null,
@@ -125,7 +142,7 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 `session.nextPath(newUserData?)` returns the path of the next node, evaluating transitions against the current user data. Optionally accepts `newUserData`, which is merged in for the transition evaluation.
 
-`session.prevPath` returns the path of the previous node, or `undefined` at the start of the flow.
+`session.prevPath` returns the path of the previous node, or `undefined` at the start of the flow. It is derived from the current answers, not from browser history.
 
 `session.nextIncomplete(newUserData?)` returns the path of the first reachable page that is not yet complete. Useful for "resume" or "jump to next incomplete" UX patterns. Accepts the same optional `newUserData` as `nextPath`.
 
@@ -140,16 +157,14 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 #### Status
 
-`session.isComplete` is `true` when the active [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) path has reached a terminal node (a page with a `null` transition).
+`session.isComplete` is `true` when the active path has reached a terminal node (a page with a `null` transition).
 
 `session.progress` describes how far along the current path the active node is, based on the pre-computed graph structure. Its type is exported as `Progress`.
 
-```ts
-session.progress;
-```
-
 - `progress` is a percentage of `max` (always `100`), useful for progress bars. It is capped at `99` for non-final nodes, so only a terminal page reports `100`.
 - `steps` is a 1-based step count, useful for "Step 2 of 3" labels. `total` is the length of the longest path through the flow and is the same for every page; `current` is the active page's position, and saturates to `total` on a terminal page.
+
+See [Concepts → Progress](docs/concepts.md#progress) for what this number can and cannot tell users.
 
 `session.statusTree` is a nested tree of `{ isDone, isReachable }` status nodes, keyed by path prefixes. Useful for rendering section-level progress in a multi-part form (e.g. a sidebar showing which sections are complete).
 
@@ -175,13 +190,13 @@ const statusTree = {
 };
 ```
 
-`session.isReachable(path)` returns `true` if the given path is reachable with the current user data. This is useful for implementing a funnel with auto-redirect (avoiding deeplinks )
+`session.isReachable(path)` returns `true` if the given path lies on the active path for the current user data. Useful for funnel guards that redirect away from deep links into branches the user is not in.
 
 #### Other
 
 `session.nodeKey` is the key of the current page in the `pages` config.
 
-`session.path` is the ordered list of node keys on the active Breadth-first search path through the flow.
+`session.path` is the ordered list of node keys on the active path through the flow.
 
 #### Array pages
 
@@ -197,6 +212,8 @@ pnpm run lint
 pnpm run test
 pnpm run build
 ```
+
+Docs live in [`docs/`](docs): [concepts](docs/concepts.md), [decision records](docs/adr), [known gaps](docs/nextSteps.md).
 
 ## Node and Package Manager
 
