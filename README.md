@@ -181,7 +181,7 @@ const statusTree = {
 
 `session.nodeKey` is the key of the current page in the `pages` config.
 
-`session.path` is the ordered list of node keys on the active Breadth-first search path through the flow.
+`session.path` is the ordered list of page paths on the active path through the flow.
 
 #### Array pages
 
