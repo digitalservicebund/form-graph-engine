@@ -1,5 +1,5 @@
 import type { CompiledFlow } from "./compileFlowConfig.ts";
-import type { InferredUserData, NodeKey, PageConfigMap, TransitionConfig } from "./types.ts";
+import type { InferredUserData, NodeKey, ObjectSchemaLike, PageConfigMap, TransitionConfig } from "./types.ts";
 /**
  * Evaluates a route definition against user data to determine the next target.
  * Guards are checked in order; first matching branch wins.
@@ -15,6 +15,11 @@ export declare const extractEdges: <FlowKey, UserData>(route?: TransitionConfig<
  * Returns nodes that could be reached under any valid data state.
  */
 export declare const evaluateAllBranches: <FlowKey, UserData>(route: TransitionConfig<FlowKey, UserData> | undefined, data: UserData) => FlowKey[];
+/**
+ * A page is complete when its schema accepts the user data.
+ * Pages without a schema collect no input and are therefore always complete.
+ */
+export declare const isPageComplete: (pageSchema: ObjectSchemaLike | undefined, data: unknown) => boolean;
 /**
  * Finds the next incomplete node in a flow, navigating through pages in order.
  *
