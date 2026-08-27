@@ -166,6 +166,7 @@ export declare const createFlowSession: <C extends PageConfigMap, P extends stri
     arrayInfo: Partial<Record<Extract<keyof C, string>, import("./arrays.ts").ArrayInfo<C>>>[Extract<keyof C, string>] | undefined;
     path: string[];
     isComplete: boolean;
+    firstIncompletePath: string | undefined;
     statusTree: Record<string, import("./statusTree.ts").StatusNode>;
     prunedUserData: Partial<((C[keyof C] extends infer T_4 ? T_4 extends C[keyof C] ? T_4 extends {
         pageSchema: infer S;

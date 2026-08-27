@@ -1,7 +1,11 @@
 import { simulate } from "./simulate.ts";
 import type { CompiledFlow } from "./compileFlowConfig.ts";
 import type { InferredUserData, PageConfigMap } from "./types.ts";
-import { evaluateRoute, findNextIncompleteNode } from "./routing.ts";
+import {
+  evaluateRoute,
+  findNextIncompleteNode,
+  isPageComplete,
+} from "./routing.ts";
 import { buildStatusTree } from "./statusTree.ts";
 import { pruneUserData } from "./pruneUserData.ts";
 import { parseCurrentPath } from "./arrays.ts";
@@ -44,6 +48,10 @@ export const createFlowSession = <C extends PageConfigMap, P extends string>(
     simulation.visitedContexts,
     userData,
   );
+  const firstIncompleteNodeKey = simulation.path.find(
+    (key) => !isPageComplete(compiledFlow.getSchemaFromNodeKey(key), userData),
+  );
+
   const fieldNames = compiledFlow.getFieldNames(normalizedPath);
   const fieldNameSet = new Set(fieldNames.map(String));
 
@@ -62,6 +70,9 @@ export const createFlowSession = <C extends PageConfigMap, P extends string>(
       (nodeKey) => compiledFlow.getPathFromNodeKey(nodeKey)!,
     ),
     isComplete: simulation.isComplete,
+    firstIncompletePath: compiledFlow.getPathFromNodeKey(
+      firstIncompleteNodeKey,
+    ),
     statusTree: buildStatusTree(compiledFlow.pages, simulation),
     prunedUserData,
     isReachable: (targetPath: string): boolean => {

@@ -58,6 +58,13 @@ export const evaluateAllBranches = (route, data) => {
     return branches;
 };
 /**
+ * A page is complete when its schema accepts the user data.
+ * Pages without a schema collect no input and are therefore always complete.
+ */
+export const isPageComplete = (pageSchema, data) => !pageSchema ||
+    (pageSchema.safeEncode !== undefined && pageSchema.safeEncode(data).success) ||
+    pageSchema.safeParse(data).success;
+/**
  * Finds the next incomplete node in a flow, navigating through pages in order.
  *
  * Traverses the flow graph from the current node and returns:
@@ -82,9 +89,7 @@ export const findNextIncompleteNode = (compiledFlow, guardData, currentNodeKey) 
         visited.add(current);
         lastNode = current;
         const pageSchema = compiledFlow.getSchemaFromNodeKey(current);
-        if (pageSchema &&
-            ((pageSchema.safeEncode && pageSchema.safeEncode(guardData).success) ||
-                pageSchema.safeParse(guardData).success)) {
+        if (pageSchema && isPageComplete(pageSchema, guardData)) {
             // Completed form page: reset tracking
             earliestSchemaLessNode = null;
         }

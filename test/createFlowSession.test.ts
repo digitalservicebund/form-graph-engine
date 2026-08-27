@@ -303,6 +303,67 @@ describe("createFlowSession", () => {
     });
   });
 
+  describe("firstIncompletePath", () => {
+    it("returns the first page on the path whose schema is unsatisfied", () => {
+      const session = createFlowSession(flow, noData, "/end");
+      deepStrictEqual(session.firstIncompletePath, "/middle");
+    });
+
+    it("returns undefined when every page on the path is answered", () => {
+      const session = createFlowSession(flow, { answer: "yes" }, "/end");
+      deepStrictEqual(session.firstIncompletePath, undefined);
+    });
+
+    it("ignores schema-less pages", () => {
+      const infoFlow = compileFlowConfig({
+        pages: {
+          intro: { path: "/intro" },
+          form: { path: "/form", pageSchema: { done: z.boolean() } },
+          outro: { path: "/outro" },
+        },
+        initialStep: "intro",
+        transitions: { intro: "form", form: "outro", outro: null },
+      });
+
+      deepStrictEqual(
+        createFlowSession(infoFlow, { done: true }).firstIncompletePath,
+        undefined,
+      );
+      deepStrictEqual(
+        createFlowSession(infoFlow, noData).firstIncompletePath,
+        "/form",
+      );
+    });
+
+    it("skips pages the guards route around", () => {
+      const branchedFlow = compileFlowConfig({
+        pages: {
+          start: { path: "/start", pageSchema: { skip: z.boolean() } },
+          skipped: { path: "/skipped", pageSchema: { detail: z.string() } },
+          end: { path: "/end" },
+        },
+        initialStep: "start",
+        transitions: {
+          start: [
+            { guard: (data) => data.skip === true, target: "end" },
+            { target: "skipped" },
+          ],
+          skipped: "end",
+          end: null,
+        },
+      });
+
+      const session = createFlowSession(branchedFlow, { skip: true }, "/end");
+      deepStrictEqual(session.firstIncompletePath, undefined);
+    });
+
+    it("reports an incomplete page even when the path reached a terminal node", () => {
+      const session = createFlowSession(flow, noData, "/end");
+      ok(session.isComplete);
+      ok(session.firstIncompletePath !== undefined);
+    });
+  });
+
   describe("prevPath", () => {
     it("returns the previous step path via BFS parentMap", () => {
       const session = createFlowSession(flow, noData, "/middle");

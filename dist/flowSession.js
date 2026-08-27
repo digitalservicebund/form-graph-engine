@@ -1,5 +1,5 @@
 import { simulate } from "./simulate.js";
-import { evaluateRoute, findNextIncompleteNode } from "./routing.js";
+import { evaluateRoute, findNextIncompleteNode, isPageComplete, } from "./routing.js";
 import { buildStatusTree } from "./statusTree.js";
 import { pruneUserData } from "./pruneUserData.js";
 import { parseCurrentPath } from "./arrays.js";
@@ -20,6 +20,7 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
     // Prev: The BFS parent guarantees a direct, chronological Back step.
     const prevNodeKey = simulation.parentMap.get(nodeKey);
     const prunedUserData = pruneUserData(compiledFlow, simulation.visitedContexts, userData);
+    const firstIncompleteNodeKey = simulation.path.find((key) => !isPageComplete(compiledFlow.getSchemaFromNodeKey(key), userData));
     const fieldNames = compiledFlow.getFieldNames(normalizedPath);
     const fieldNameSet = new Set(fieldNames.map(String));
     const pageData = Object.fromEntries(Object.entries(prunedUserData).filter(([key, _]) => fieldNameSet.has(key)));
@@ -32,6 +33,7 @@ export const createFlowSession = (compiledFlow, userData, currentPath) => {
         arrayInfo: compiledFlow.getArrayInfo(normalizedPath),
         path: simulation.path.map((nodeKey) => compiledFlow.getPathFromNodeKey(nodeKey)),
         isComplete: simulation.isComplete,
+        firstIncompletePath: compiledFlow.getPathFromNodeKey(firstIncompleteNodeKey),
         statusTree: buildStatusTree(compiledFlow.pages, simulation),
         prunedUserData,
         isReachable: (targetPath) => {

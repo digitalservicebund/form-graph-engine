@@ -2,6 +2,7 @@ import type { CompiledFlow } from "./compileFlowConfig.ts";
 import type {
   InferredUserData,
   NodeKey,
+  ObjectSchemaLike,
   PageConfigMap,
   TransitionConfig,
 } from "./types.ts";
@@ -71,6 +72,18 @@ export const evaluateAllBranches = <FlowKey, UserData>(
 };
 
 /**
+ * A page is complete when its schema accepts the user data.
+ * Pages without a schema collect no input and are therefore always complete.
+ */
+export const isPageComplete = (
+  pageSchema: ObjectSchemaLike | undefined,
+  data: unknown,
+): boolean =>
+  !pageSchema ||
+  (pageSchema.safeEncode !== undefined && pageSchema.safeEncode(data).success) ||
+  pageSchema.safeParse(data).success;
+
+/**
  * Finds the next incomplete node in a flow, navigating through pages in order.
  *
  * Traverses the flow graph from the current node and returns:
@@ -109,11 +122,7 @@ export const findNextIncompleteNode = <C extends PageConfigMap>(
 
     const pageSchema = compiledFlow.getSchemaFromNodeKey(current);
 
-    if (
-      pageSchema &&
-      ((pageSchema.safeEncode && pageSchema.safeEncode(guardData).success) ||
-        pageSchema.safeParse(guardData).success)
-    ) {
+    if (pageSchema && isPageComplete(pageSchema, guardData)) {
       // Completed form page: reset tracking
       earliestSchemaLessNode = null;
     } else if (pageSchema) {

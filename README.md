@@ -140,7 +140,17 @@ const session = createFlowSession(compiledFlow, userData, currentPath);
 
 #### Status
 
-`session.isComplete` is `true` when the active [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) path has reached a terminal node (a page with a `null` transition).
+`session.isComplete` is `true` when the active [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search) path has reached a terminal node (a page with a `null` transition). It says nothing about the pages along the way, which can still be unanswered.
+
+`session.firstIncompletePath` is the path of the first page on the active path whose `pageSchema` does not accept the user data, or `undefined` when every page on the path is answered. Pages without a `pageSchema` collect no input and never count as incomplete.
+
+Combine both to decide whether a form may be submitted:
+
+```ts
+const isSubmittable = session.isComplete && !session.firstIncompletePath;
+```
+
+Unlike `nextIncomplete`, this looks at the whole path from the initial step rather than forward from the current page, so it also catches gaps a user left behind by navigating back.
 
 `session.progress` describes how far along the current path the active node is, based on the pre-computed graph structure. Its type is exported as `Progress`.
 
